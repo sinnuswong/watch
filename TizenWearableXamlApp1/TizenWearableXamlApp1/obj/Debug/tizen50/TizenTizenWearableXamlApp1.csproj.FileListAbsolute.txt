@@ -1,0 +1,12 @@
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\bin\Tizen.Wearable.CircularUI.Forms.Renderer.dll
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\bin\Tizen.Wearable.CircularUI.Forms.dll
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\bin\Xamarin.Forms.Core.dll
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\bin\Xamarin.Forms.Platform.Tizen.dll
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\bin\Xamarin.Forms.Platform.dll
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\bin\Xamarin.Forms.Xaml.dll
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\bin\TizenWearableXamlApp1.dll
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\bin\TizenWearableXamlApp1.pdb
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\TizenWearableXamlApp1.deps.json
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\shared\res\TizenWearableXamlApp1.png
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\tpkroot\tizen-manifest.xml
+C:\Users\sinnus\source\repos\TizenWearableXamlApp1\TizenWearableXamlApp1\bin\Debug\tizen50\org.tizen.example.TizenWearableXamlApp1-1.0.0.tpk
