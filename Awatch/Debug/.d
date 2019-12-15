@@ -1,0 +1,1 @@
+res/edje/digital-watch.edj:
