@@ -1,0 +1,39 @@
+void DrawImage(cairo_t *ctx,int x,int y,int w,int h,cairo_surface_t *img){
+    /*if((w||h) || (w==cairo_image_surface_get_width(img)&&h==cairo_image_surface_get_height(img))){
+        cairo_save(ctx);
+        cairo_translate(ctx, x, y);
+        cairo_scale(ctx, ((double)w)/((double)cairo_image_surface_get_width(img)), ((double)h)/((double)cairo_image_surface_get_height(img)));
+        cairo_pattern_t *pattern=cairo_pattern_create_for_surface(img);
+        cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
+        cairo_set_source(ctx, pattern);
+        cairo_rectangle(ctx, 0,0, cairo_image_surface_get_width(img), cairo_image_surface_get_height(img));
+        cairo_fill(ctx);
+        cairo_pattern_destroy(pattern);
+        cairo_restore(ctx);
+    }else{
+        cairo_set_source_surface(ctx, img, x,y);
+        cairo_rectangle(ctx, x,y, cairo_image_surface_get_width(img), cairo_image_surface_get_height(img));
+        cairo_fill(ctx);
+    }*/
+    cairo_save(ctx);
+    cairo_translate(ctx, x, y);
+    cairo_pattern_t *pattern=cairo_pattern_create_for_surface(img);
+    cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
+    cairo_set_source(ctx, pattern);
+    cairo_rectangle(ctx, 0, 0, w?w:cairo_image_surface_get_width(img), h?h:cairo_image_surface_get_height(img));
+    cairo_fill(ctx);
+    cairo_pattern_destroy(pattern);
+    cairo_restore(ctx);
+}
+
+void DrawThreeSliceImage(cairo_t* ctx,Point p,int width,cairo_surface_t* imgs[3]){
+#define a   (imgs[0])
+#define b   (imgs[1])
+#define c   (imgs[2])
+    DrawImage(ctx, p.x, p.y, cairo_image_surface_get_width(a), cairo_image_surface_get_height(a),a);
+    DrawImage(ctx, p.x+cairo_image_surface_get_width(a), p.y, width-(cairo_image_surface_get_width(a)+cairo_image_surface_get_width(c)), cairo_image_surface_get_height(b),b);
+    DrawImage(ctx, p.x+(width-cairo_image_surface_get_width(c)), p.y, cairo_image_surface_get_width(c), cairo_image_surface_get_height(c),c);
+#undef a
+#undef b
+#undef c
+}
