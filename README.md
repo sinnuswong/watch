@@ -5,6 +5,7 @@ https://developer.tizen.org/development/sample/native/AppFW/Simple_home
 https://www.cairographics.org/manual/cairo-text.html#cairo-toy-font-face-get-family
 
 https://www.cairographics.org/manual/cairo-text.html#cairo-get-font-face
+https://apps.apple.com/cn/app/ecg-%E6%B5%B7%E9%87%8F%E5%BF%83%E7%94%B5%E5%9B%BE%E6%A1%88%E4%BE%8B%E5%92%8C%E8%AF%8A%E6%96%AD%E8%AF%A6%E8%A7%A3/id798663024#?platform=appleWatch
 int main()
 {
 	char* s = "8*7";
