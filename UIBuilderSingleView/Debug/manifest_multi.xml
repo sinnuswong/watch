@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="4.0" package="org.example.uibuildersingleview" version="1.0.0">
+    <profile name="wearable"/>
+    <ui-application appid="org.example.uibuildersingleview" exec="uibuildersingleview" multiple="false" nodisplay="false" taskmanage="true" type="capp">
+        <label>uibuildersingleview</label>
+        <icon>uibuildersingleview.png</icon>
+    </ui-application>
+    <widget-application appid="org.example.test" exec="uibuilderwidget" main="true" update-period="0">
+        <label>uibuilderwidget</label>
+        <icon>uibuilderwidget.png</icon>
+        <support-size preview="screenshot.png">2x2</support-size>
+    </widget-application>
+</manifest>

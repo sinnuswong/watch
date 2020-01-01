@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="4.0" package="org.example.uibuildersingleview" version="1.0.0">
+    <profile name="wearable" />
+    <ui-application appid="org.example.uibuildersingleview" exec="uibuildersingleview" type="capp" multiple="false" taskmanage="true" nodisplay="false">
+        <icon>uibuildersingleview.png</icon>
+        <label>uibuildersingleview</label>
+	</ui-application>
+</manifest>
