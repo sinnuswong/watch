@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" package="org.eros.sportor" api-version="4.0" version="1.0.0">
+	<profile name="wearable" />
+	<widget-application appid="org.eros.sportor" exec="sportor" main="true" update-period="0" >
+		<icon>icon.png</icon>
+		<label>sportor</label>
+		<support-size preview="preview.png">2x2</support-size>
+	</widget-application>
+</manifest>

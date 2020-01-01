@@ -1,0 +1,5 @@
+set sysroot /Users/sinnus/tizen-studio/tools/smart-build-interface/../../platforms/tizen-4.0/wearable/rootstraps/wearable-4.0-emulator.core
+set debug-file-directory /Users/sinnus/tizen-studio/tools/smart-build-interface/../../platforms/tizen-4.0/wearable/rootstraps/wearable-4.0-emulator.core/usr/lib/debug
+set solib-search-path /Users/sinnus/workspace/Authenticator/Debug
+dir /Users/sinnus/tizen-studio/tools/smart-build-interface/../../platforms/tizen-4.0/wearable/rootstraps/wearable-4.0-emulator.core/usr/src/debug
+sharedlibrary

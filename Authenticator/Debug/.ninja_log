@@ -1,0 +1,14 @@
+# ninja log v5
+0	134	0	res/edje/setting.edj	3ed9c1a1f73f534b
+1	893	0	src/main.o	edd0e370d1c2fb1d
+895	1364	0	authenticator	e5e5fcd9ff1158a
+4	575	0	src/main.o	edd0e370d1c2fb1d
+575	788	0	authenticator	e5e5fcd9ff1158a
+3	494	0	src/main.o	edd0e370d1c2fb1d
+494	707	0	authenticator	e5e5fcd9ff1158a
+3	966	0	src/main.o	a8b9aaeede9b7e63
+969	1492	0	authenticator	ba6322d72a8fa543
+9	865	0	src/main.o	a8b9aaeede9b7e63
+865	1349	0	authenticator	ba6322d72a8fa543
+3	667	0	src/main.o	edd0e370d1c2fb1d
+667	1179	0	authenticator	e5e5fcd9ff1158a

@@ -1,0 +1,332 @@
+/*
+ * Copyright (c) 2015 Samsung Electronics Co., Ltd
+ *
+ * Licensed under the Flora License, Version 1.1 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://floralicense.org/license/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#define DESC_TEXT_SIZE(text_size) \
+   description { state: "size_"text_size 0.0; \
+      inherit: "default" 0.0; \
+      text { size: text_size; } \
+   }
+
+#define PROG_CHANGE_TEXT_SIZE(text_size) \
+   program { \
+      name: "change.text.size."text_size; \
+      signal: "change.text.size."text_size; \
+      action: STATE_SET "size_"text_size 0.0; \
+      source: "txt.first.char"; \
+      target: "txt.first.char"; \
+      transition: LINEAR 0.3; \
+   }
+
+#define PART_CALL_VIEW_BUTTON(button_name, x, y, r, g, b, image_file) \
+   part { name: button_name"_bg"; \
+      type: IMAGE; \
+      description { state: "default" 0.0; \
+         rel1 { relative: x y; to: "img.bg"; } \
+         rel2 { relative: x y; to: "img.bg"; } \
+            min: 80 80; \
+            max: 80 80; \
+            align: 0.5 0.5; \
+            color: r g b 255; \
+            image { normal: "wc_contact_detail_bg.png"; } \
+      } \
+      description { state: "pressed" 0.0; \
+         inherit: "default" 0.0; \
+         color: r g b (255*0.5); \
+      } \
+   } \
+   part { name: button_name; \
+      type: IMAGE; \
+      description { state: "default" 0.0; \
+         rel1 { to: button_name"_bg"; } \
+         rel2 { to: button_name"_bg"; } \
+            align: 0.5 0.5; \
+            color: 250 250 250 255; \
+            image { normal: image_file; } \
+      } \
+      description { state: "pressed" 0.0; \
+         inherit: "default" 0.0; \
+         color: 250 250 250 (255*0.5); \
+      } \
+   }
+
+#define PROG_CALL_VIEW_BUTTON(button_target) \
+   program { \
+      signal: "mouse,down,*"; \
+      source: button_target; \
+      action: STATE_SET "pressed" 0.0; \
+      target: button_target; \
+      target: button_target"_bg"; \
+   } \
+   program { \
+      signal: "mouse,up,*"; \
+      source: button_target; \
+      action: STATE_SET "default" 0.0; \
+      target: button_target; \
+      target: button_target"_bg"; \
+   } \
+   program { \
+      signal: "mouse,clicked,1"; \
+      source: button_target; \
+      action: SIGNAL_EMIT "mouse,clicked" button_target; \
+   }
+
+collections {
+   styles {
+      style {
+         name: "name_text_style";
+         base: "font=TIZEN:style=Regular text_class=tizen align=center font_size="35" color=#FFFFFF ellipsis=1 wrap=mixed";
+      }
+   }
+   group { name: "main";
+      images {
+         image: "b_detail_bg_cover.png" COMP;
+         image: "b_buddy_list_focus_bg.png" COMP;
+      }
+      parts {
+         part { name: "img.bg";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 { relative: 0.0 0.0; }
+               rel2 { relative: 1.0 1.0; }
+               min: 360 360;
+               max: 360 360;
+               color: 0 0 0 255;
+               image { normal: "b_detail_bg_cover.png"; }
+            }
+         }
+         part { name: "txt.title";
+            type: TEXT;
+            description { state: "default" 0.0;
+               rel1 { relative: 0.5 51/360; to: "img.bg"; }
+               rel2 { relative: 0.5 (51+39)/360; to: "img.bg"; }
+               align: 0.5 0.5;
+               color: 250 125 47 255;
+               text {
+                  font: "Tizen:style=Bold";
+                  size: 30;
+                  min: 1 1;
+                  text: "Buddy";
+               }
+            }
+            description { state: "title.up" 0.0;
+               inherit: "default" 0.0;
+               rel1 { relative: 0.5 12/360; to: "img.bg"; }
+               rel2 { relative: 0.5 (12+39)/260; to: "img.bg"; }
+            }
+            description { state: "title.hide" 0.0;
+               inherit: "default" 0.0;
+               rel1 { relative: 0.5 -0.1; to: "img.bg"; }
+               rel2 { relative: 0.5 -0.1; to: "img.bg"; }
+            }
+         }
+         part { name: "img.focus.bg";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 { relative: 0.5 0.5; }
+               rel2 { relative: 0.5 0.5; }
+               min: 360 108;
+               max: 360 108;
+               color: 250 250 250 (255*0.5);
+               image { normal: "b_buddy_list_focus_bg.png"; }
+            }
+            description { state: "pressed" 0.0;
+               inherit: "default";
+               color: 250 250 250 (255*0.65);
+            }
+            description { state: "dim" 0.0;
+               inherit: "default";
+               color: 250 250 250 (255*0.25);
+            }
+         }
+         part { name: "sw.focus.txt";
+            type: SWALLOW;
+            repeat_events: 1;
+            description { state: "default" 0.0;
+               rel1 { relative: (16+76+8)/360  0.5; to: "img.focus.bg"; }
+               rel2 { relative: (16+76+8)/360 0.5; to: "img.focus.bg"; }
+               align: 0.0 0.5;
+               min: 230 47;
+               max: 230 47;
+            }
+         }
+      }
+      programs {
+         program {
+            signal: "mouse,down,*";
+            source: "img.focus.bg";
+            action: STATE_SET "pressed" 0.0;
+            target: "img.focus.bg";
+         }
+         program {
+            signal: "mouse,up,*";
+            source: "img.focus.bg";
+            action: STATE_SET "default" 0.0;
+            target: "img.focus.bg";
+         }
+         program {
+            signal: "mouse,clicked,1";
+            source: "img.focus.bg";
+            action: SIGNAL_EMIT "mouse,clicked" "img.focus.bg";
+         }
+         program {
+            signal: "change.title.default";
+            source: "txt.title";
+            action: STATE_SET "default" 0.0;
+            target: "txt.title";
+            transition: LINEAR 0.2;
+         }
+         program {
+            signal: "change.title.up";
+            source: "txt.title";
+            action: STATE_SET "title.up" 0.0;
+            target: "txt.title";
+            transition: LINEAR 0.2;
+         }
+         program {
+            signal: "change.title.hide";
+            source: "txt.title";
+            action: STATE_SET "title.hide" 0.0;
+            target: "txt.title";
+            transition: LINEAR 0.2;
+         }
+      }
+   }
+
+   group { name: "list-item";
+      images {
+         image: "wc_contact_bg.png" COMP;
+      }
+      parts {
+         part { name: "bg";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 { relative: 0.0 0.0; }
+               rel2 { relative: 1.0 1.0; }
+               color: 255 255 255 255;
+               image { normal: "wc_contact_bg.png"; }
+            }
+         }
+         part { name: "sw.bg";
+            type: SWALLOW;
+            clip_to: "bg";
+            description { state: "default" 0.0;
+               rel1 { to: "bg"; }
+               rel2 { to: "bg"; }
+            }
+         }
+         part { name: "txt.first.char";
+            type: TEXT;
+            description { state: "default" 0.0;
+               rel1 { to: "bg"; }
+               rel2 { to: "bg"; }
+               color: 255 255 255 255;
+               text {
+                  font: "Tizen:style=Regular";
+                  size: 10;
+                  min: 1 1;
+                  text: "";
+               }
+            }
+            DESC_TEXT_SIZE(48)
+            DESC_TEXT_SIZE(29)
+            DESC_TEXT_SIZE(22)
+            DESC_TEXT_SIZE(20)
+            DESC_TEXT_SIZE(18)
+            DESC_TEXT_SIZE(14)
+         }
+      }
+      programs {
+         PROG_CHANGE_TEXT_SIZE(48)
+         PROG_CHANGE_TEXT_SIZE(29)
+         PROG_CHANGE_TEXT_SIZE(22)
+         PROG_CHANGE_TEXT_SIZE(20)
+         PROG_CHANGE_TEXT_SIZE(18)
+         PROG_CHANGE_TEXT_SIZE(14)
+      }
+   }
+
+   group { name: "detail-view";
+      images {
+         image: "b_detail_bg_cover.png" COMP;
+         image: "wc_contact_detail_bg.png" COMP;
+         image: "wc_contact_detail_call_icon.png" COMP;
+         image: "wc_contact_detail_msg_icon.png" COMP;
+      }
+      parts {
+         part { name: "img.bg";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 { relative: 0.0 0.0; }
+               rel2 { relative: 1.0 1.0; }
+               min: 360 360;
+               max: 360 360;
+               color: 0 0 0 255;
+               image { normal: "b_detail_bg_cover.png"; }
+            }
+         }
+         part { name: "sw.bg";
+            type: SWALLOW;
+            description { state: "default" 0.0;
+               rel1 { to: "img.bg"; }
+               rel2 { to: "img.bg"; }
+            }
+         }
+         part { name: "dim.bg";
+            type: RECT;
+            description { state: "default" 0.0;
+               rel1 { to: "img.bg"; }
+               rel2 { to: "img.bg"; }
+               color: 0 0 0 (255*0.5);
+            }
+         }
+         part { name: "txt.name";
+            type: TEXTBLOCK;
+            description { state: "default" 0.0;
+               rel1 { relative: 54/360 52/360; to: "img.bg"; }
+               rel2 { relative: (360-54)/360 (52+47)/360; to: "img.bg"; }
+               align: 0.5 0.5;
+               color: 255 255 255 255;
+               text {
+                  min: 0 1;
+                  style: "name_text_style";
+                  text: "";
+               }
+            }
+         }
+         PART_CALL_VIEW_BUTTON("img.btn1", (71+50)/360, 0.5, 66, 171, 31, "wc_contact_detail_call_icon.png")
+         PART_CALL_VIEW_BUTTON("img.btn2", (71+100+18+50)/360, 0.5, 235, 164, 23, "wc_contact_detail_msg_icon.png")
+         part { name: "txt.number";
+            type: TEXT;
+            description { state: "default" 0.0;
+               rel1 { relative: 54/360 (360-59-37)/360; to: "img.bg"; }
+               rel2 { relative: (360-54)/360 (360-59)/360; to: "img.bg"; }
+               align: 0.5 0.5;
+               color: 255 255 255 255;
+               text {
+                  font: "Tizen:style = regular";
+                  size: 29;
+                  min: 1 1;
+                  text: "";
+               }
+            }
+         }
+      }
+      programs {
+         PROG_CALL_VIEW_BUTTON("img.btn1")
+         PROG_CALL_VIEW_BUTTON("img.btn2")
+      }
+   }
+}
