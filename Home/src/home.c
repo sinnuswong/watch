@@ -35,6 +35,11 @@ typedef struct appdata {
 	Ecore_Animator * anim;
 	int * ridus;
 	int step;
+
+	cairo_surface_t *image;
+	cairo_pattern_t *pattern;
+	cairo_matrix_t *matrix;
+	int w, h;
 } appdata_s;
 double* moon;
 double* earth;
@@ -82,18 +87,17 @@ static double* get_color(char* in) {
 }
 
 static int computeRidus(int cx, int cy, int x, int y) {
-//	double d = (cx - x) * (cx - x) + (cy - y) * (cy - y);
-//	double t = 0.9;
-//	double r = cx * cx + cy * cy;
-//	int res = 0;
-//	if(r>=3*d){
-//		res = (sqrt(r) - sqrt(d)) / 6;//res = sqrt(r - d) / 6;
-//	}
-//	else{
-//		res = (sqrt(r) - sqrt(d)) / 6;
-//	}
-//	return res;
-	return 30;
+	double d = (cx - x) * (cx - x) + (cy - y) * (cy - y);
+	double t = 0.9;
+	double r = cx * cx + cy * cy;
+	int res = 0;
+	if (r >= 3 * d) {
+		res = (sqrt(r) - sqrt(d)) / 3;	//res = sqrt(r - d) / 6;
+	} else {
+		res = (sqrt(r) - sqrt(d)) / 3;
+	}
+	return res;
+	//return 30;
 }
 
 static Eina_Bool update_solar_system1(appdata_s *ad) {
@@ -470,42 +474,29 @@ static Eina_Bool update_solar_system(appdata_s *ad) {
 	int side = 0, inner_x, inner_y;
 	int cur_r = r / 15;
 
-	///
-	int              w, h;
-	cairo_surface_t *image;
-	cairo_pattern_t *pattern;
-	cairo_matrix_t   matrix;
+	int x = cx;
+	int y = cy;
+	r = computeRidus(size / 2, size / 2, x, y);
+//	cairo_matrix_init_scale(ad->matrix, ad->w / r, ad->h / r);
+//	cairo_pattern_set_matrix(ad->pattern, ad->matrix);
 
-	char image_path[PATH_MAX];
-	char *res_path = app_get_resource_path();
-	if (res_path) {
-		snprintf(image_path, (int) PATH_MAX, "%s%s", res_path, "icon.png");
-		free(res_path);
-	}
+	//cairo_translate(ad->cairo, x-r/2, y-r/2);
+	cairo_set_source_surface(ad->cairo, ad->image,1,1);
+	cairo_arc(ad->cairo, cx,cy,cx,0,ANGLE(360));
+	cairo_clip(ad->cairo);
+	//cairo_translate(ad->cairo, -x+r/2, -y+r/2);
 
-	image = cairo_image_surface_create_from_png (image_path);
-	w = cairo_image_surface_get_width (image);
-	h = cairo_image_surface_get_height (image);
-	dlog_print(DLOG_ERROR, LOG_TAG, "current time. err %d:%d", w, h);
+	x = cx - r - 5;
+	y = cy - r - 5;
+	r = computeRidus(size / 2, size / 2, x, y);
+	cairo_matrix_init_scale(ad->matrix, ad->w / r, ad->h / r);
+	cairo_pattern_set_matrix(ad->pattern, ad->matrix);
 
-	pattern = cairo_pattern_create_for_surface (image);
-	cairo_pattern_set_extend (pattern, CAIRO_EXTEND_NONE);
-
-//	cairo_translate (ad->cairo, cx,cy);
-//	cairo_rotate (ad->cairo, M_PI / 4);
-//	cairo_scale (ad->cairo, 1 / sqrt (2), 1 / sqrt (2));
-//	cairo_translate (cr, -128.0, -128.0);
-
-	cairo_matrix_init_scale (&matrix, 2,2);
-	cairo_pattern_set_matrix (pattern, &matrix);
-
-	cairo_set_source (ad->cairo, pattern);
-
-	cairo_rectangle (ad->cairo, 0, 0, 252,252);
-	cairo_fill (ad->cairo);
-
-	cairo_pattern_destroy (pattern);
-	cairo_surface_destroy (image);
+	cairo_translate(ad->cairo, x - r / 2, y - r / 2);
+	cairo_set_source(ad->cairo, ad->pattern);
+	cairo_rectangle(ad->cairo, 0, 0, 1.2*r, 1.2*r);
+	cairo_fill(ad->cairo);
+	cairo_translate(ad->cairo, -x + r / 2, -y + r / 2);
 
 	cairo_surface_flush(ad->surface);
 
@@ -533,35 +524,33 @@ bool example_sensor_recorder_callback(sensor_type_e type,
 	sensor_recorder_data_get_double(data, SENSOR_RECORDER_DATA_DISTANCE,
 			&distance);
 
-	dlog_print(DLOG_INFO, "Test", "c is %d, distance is %f", step,
-			distance);
+	dlog_print(DLOG_INFO, "Test", "c is %d, distance is %f", step, distance);
 	return true;
 }
 
 /* Define callback */
-void
-example_sensor_callback(sensor_h sensor, sensor_event_s *event, void *user_data)
-{
-    /*
-       If a callback is used to listen for different sensor types,
-       it can check the sensor type
-    */
-    sensor_type_e type;
-    sensor_get_type(sensor, &type);
+void example_sensor_callback(sensor_h sensor, sensor_event_s *event,
+		void *user_data) {
+	/*
+	 If a callback is used to listen for different sensor types,
+	 it can check the sensor type
+	 */
+	sensor_type_e type;
+	sensor_get_type(sensor, &type);
 
-    if (type == SENSOR_HUMAN_SLEEP_DETECTOR) {
-        unsigned long long timestamp = event->timestamp;
-        int accuracy = event->accuracy;
-        float x = event->values[0];
+	if (type == SENSOR_HUMAN_SLEEP_DETECTOR) {
+		unsigned long long timestamp = event->timestamp;
+		int accuracy = event->accuracy;
+		float x = event->values[0];
 
-        dlog_print(DLOG_INFO, "Test1",
-        				"Accelerometer is not supported on the current device %f",x);
-    } else if (type == SENSOR_HRM_LED_GREEN) {
-        unsigned long long timestamp = event->timestamp;
-        int v = (int)event->values[0];
-        dlog_print(DLOG_INFO, "Test1",
-                				"Accelerometer is not supported on the current device %d",v);
-    }
+		dlog_print(DLOG_INFO, "Test1",
+				"Accelerometer is not supported on the current device %f", x);
+	} else if (type == SENSOR_HRM_LED_GREEN) {
+		unsigned long long timestamp = event->timestamp;
+		int v = (int) event->values[0];
+		dlog_print(DLOG_INFO, "Test1",
+				"Accelerometer is not supported on the current device %d", v);
+	}
 }
 
 /* Register callback */
@@ -599,12 +588,12 @@ void get_health() {
 	sensor_recorder_query_set_time(query, SENSOR_RECORDER_QUERY_ANCHOR_TIME,
 			(time_t) (7 * 3600));
 
-	sensor_recorder_read(SENSOR_HUMAN_PEDOMETER , query,
+	sensor_recorder_read(SENSOR_HUMAN_PEDOMETER, query,
 			example_sensor_recorder_callback, NULL);
 
 	/* Show the window after the base GUI is set up */
-	dlog_print(DLOG_INFO, "Test1", "steps is %d, distance is %f get_health", 0, 0);
-
+	dlog_print(DLOG_INFO, "Test1", "steps is %d, distance is %f get_health", 0,
+			0);
 
 //	 supported = false;
 //
@@ -618,7 +607,6 @@ void get_health() {
 //	sensor_create_listener(sensor, &listener);
 //	sensor_listener_set_event_cb(listener, 1000, example_sensor_callback, NULL);
 //	sensor_listener_start(listener);
-
 
 }
 int init_solar_system(appdata_s *ad) {
@@ -640,6 +628,22 @@ int init_solar_system(appdata_s *ad) {
 	ad->ridus[4] = 0;
 	ad->cur_position_x = cx;
 	ad->cur_position_y = cy;
+	///
+
+	char image_path[PATH_MAX];
+	char *res_path = app_get_resource_path();
+	if (res_path) {
+		snprintf(image_path, (int) PATH_MAX, "%s%s", res_path, "icon.png");
+		free(res_path);
+	}
+	ad->matrix = (cairo_matrix_t *) malloc(sizeof(cairo_matrix_t));
+	ad->image = cairo_image_surface_create_from_png(image_path);
+	ad->w = cairo_image_surface_get_width(ad->image);
+	ad->h = cairo_image_surface_get_height(ad->image);
+
+//	ad->pattern = cairo_pattern_create_for_surface(ad->image);
+//	cairo_pattern_set_extend(ad->pattern, CAIRO_EXTEND_NONE);
+
 	update_solar_system(ad);
 	return 0;
 }
@@ -692,7 +696,7 @@ static Eina_Bool event_move(void *data, int type, void *ev) {
 	}
 	ad->cur_position_x = cx;
 	ad->cur_position_y = cy;
-//	update_solar_system(ad);
+	update_solar_system(ad);
 	return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -844,6 +848,8 @@ static void app_terminate(void *data) {
 	cairo_destroy(ad->cairo);
 	ecore_event_handler_del(ad->handler);
 //	ecore_animator_del(ad->anim);
+	cairo_pattern_destroy(ad->pattern);
+	cairo_surface_destroy(ad->image);
 	free(ad->ridus);
 	free(ad);
 
