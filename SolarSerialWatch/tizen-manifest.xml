@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" package="org.eros.solarserialwatch" api-version="4.0" version="1.0.0">
+	<profile name="wearable" />
+	<watch-application appid="org.eros.solarserialwatch" exec="solarserialwatch" ambient-support="true">
+		<icon>solarserialwatch.png</icon>
+		<label>solarserialwatch</label>
+	</watch-application>
+	<privileges>
+		<privilege>http://tizen.org/privilege/alarm.set</privilege>
+	</privileges>
+</manifest>
