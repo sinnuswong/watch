@@ -19,18 +19,30 @@ typedef struct appdata {
 	cairo_surface_t *surface;
 	unsigned char *pixels;
 
+	int hour24;
+	int minute;
 	int hour24_x, hour24_y;
 	int minute_x, minute_y;
 	int second_x, second_y;
 	int second_bar_x, second_bar_y;
 	double * background;
+	int line_width;
 	double * color_large_1;
 	double * color_large_2;
 	double * color_large_3;
 
+	cairo_pattern_t * large3_pattern;
+	cairo_pattern_t * large2_pattern;
+	cairo_pattern_t * large1_pattern;
+
+	double * sun_color;
+	double * earth_color;
+	double * moon_color;
+
 	double * color_hour;
 	double * color_minute;
 	double * color_second;
+
 } appdata_s;
 
 #define TEXT_BUF_SIZE 256
@@ -64,6 +76,9 @@ void free_memory(appdata_s *ad) {
 	free(ad->color_hour);
 	free(ad->color_minute);
 	free(ad->color_second);
+	free(ad->sun_color);
+	free(ad->moon_color);
+	free(ad->earth_color);
 }
 int init_watch(appdata_s *ad) {
 //	background = (double*) malloc(3 * sizeof(double));
@@ -71,10 +86,8 @@ int init_watch(appdata_s *ad) {
 //	color_large_2 = get_color("#7E7F7A");
 //	color_large_3 = get_color("#C1ABAD");
 
-//245,2,58;153,211,29;7,217,230;
 //123,22,112;231,234,118;52,182,112;
-//43, 153, 92, 254, 227, 138, 49, 70, 179
-//int colors[9] = { 245, 2, 58, 43, 153, 92, 253, 226, 75 };
+//
 
 	ad->background = (double*) malloc(3 * sizeof(double));
 	ad->color_large_1 = (double*) malloc(3 * sizeof(double));
@@ -84,15 +97,22 @@ int init_watch(appdata_s *ad) {
 	ad->color_minute = (double*) malloc(3 * sizeof(double));
 	ad->color_second = (double*) malloc(3 * sizeof(double));
 
+	ad->sun_color = (double*) malloc(3 * sizeof(double));
+	ad->earth_color = (double*) malloc(3 * sizeof(double));
+	ad->moon_color = (double*) malloc(3 * sizeof(double));
+
 	ad->background[0] = 0;
 	ad->background[1] = 0;
 	ad->background[2] = 0;
 
-	//245,2,58;153,211,29;7,217,230;
 	//123,22,112;231,234,118;52,182,112;
-	//int colors[9] = { 245, 2, 58, 153, 211, 29, 7, 217, 230 };
-	int colors[9] = { 245, 2, 58, 43, 153, 92, 253, 226, 75 };
-
+	//int colors[9] = { 245, 2, 58, 153, 211, 29, 7, 217, 230 }; //apple like
+	//int colors[9] = { 245, 2, 58, 43, 153, 92, 253, 226, 75 };//red green yellow
+	//int colors[9] = { 43, 153, 92, 254, 227, 138, 49, 70, 179 };green yellow blue
+	//int colors[9] = { 43, 153, 92, 49, 70, 179,254, 227, 138 }; //green blue yellow
+	int colors[9] = { 22, 22, 22, 33, 33, 33, 56, 56, 56 }; //grey grey grey
+	//int colors[9] = {252,76,79, 73,99,251,254,203,47};
+	//int colors[9] = {250,71,117,245,178,63,144,46,240};
 	ad->color_large_1[0] = (double) colors[0] / 256;
 	ad->color_large_1[1] = (double) colors[1] / 256;
 	ad->color_large_1[2] = (double) colors[2] / 256;
@@ -104,6 +124,18 @@ int init_watch(appdata_s *ad) {
 	ad->color_large_3[0] = (double) colors[6] / 256;
 	ad->color_large_3[1] = (double) colors[7] / 256;
 	ad->color_large_3[2] = (double) colors[8] / 256;
+
+	ad->sun_color[0] = (double) 237 / 256;
+	ad->sun_color[1] = (double) 205 / 256;
+	ad->sun_color[2] = (double) 163 / 256;
+
+	ad->earth_color[0] = (double) 73 / 256;
+	ad->earth_color[1] = (double) 99 / 256;
+	ad->earth_color[2] = (double) 251 / 256;
+
+	ad->moon_color[0] = (double) 252 / 256;
+	ad->moon_color[1] = (double) 76 / 256;
+	ad->moon_color[2] = (double) 79 / 256;
 
 	ad->color_second[0] = 1;
 	ad->color_second[1] = 0;
@@ -120,28 +152,80 @@ int init_watch(appdata_s *ad) {
 	int cx = size / 2;
 	int cy = size / 2;
 	int r = size / 2;
+	ad->line_width = 22;
 	cairo_set_source_rgba(ad->cairo, ad->background[0], ad->background[1],
 			ad->background[2], 1);
 	cairo_arc(ad->cairo, cx, cy, r, ANGLE(0), ANGLE(360));
 	cairo_fill(ad->cairo);
 
-	cairo_set_source_rgba(ad->cairo, ad->color_large_1[0], ad->color_large_1[1],
-			ad->color_large_1[2], 1);
-	cairo_set_line_width(ad->cairo, 20);
+	//create draw pattern
+	ad->large3_pattern = cairo_pattern_create_radial(cx, cy,
+			r - 93 - ad->line_width / 2, cx, cy, r - 93 + ad->line_width / 2);
+	cairo_pattern_add_color_stop_rgba(ad->large3_pattern, 0.05,
+			ad->color_large_3[0], ad->color_large_3[1], ad->color_large_3[2],
+			0.3);
+	cairo_pattern_add_color_stop_rgba(ad->large3_pattern, 0.9,
+			ad->color_large_3[0], ad->color_large_3[1], ad->color_large_3[2],
+			1);
+	cairo_pattern_add_color_stop_rgba(ad->large3_pattern, 0.95,
+			ad->color_large_3[0], ad->color_large_3[1], ad->color_large_3[2],
+			0.3);
+
+	ad->large2_pattern = cairo_pattern_create_radial(cx, cy,
+			r - 53 - ad->line_width / 2, cx, cy, r - 53 + ad->line_width / 2);
+	cairo_pattern_add_color_stop_rgba(ad->large2_pattern, 0.05,
+			ad->color_large_2[0], ad->color_large_2[1], ad->color_large_2[2],
+			0.3);
+	cairo_pattern_add_color_stop_rgba(ad->large2_pattern, 0.9,
+			ad->color_large_2[0], ad->color_large_2[1], ad->color_large_2[2],
+			1);
+	cairo_pattern_add_color_stop_rgba(ad->large2_pattern, 0.95,
+			ad->color_large_2[0], ad->color_large_2[1], ad->color_large_2[2],
+			0.3);
+
+	ad->large1_pattern = cairo_pattern_create_radial(cx, cy,
+			r - 13 - ad->line_width / 2, cx, cy, r - 13 + ad->line_width / 2);
+	cairo_pattern_add_color_stop_rgba(ad->large1_pattern, 0.05,
+			ad->color_large_1[0], ad->color_large_1[1], ad->color_large_1[2],
+			0.3);
+	cairo_pattern_add_color_stop_rgba(ad->large1_pattern, 0.9,
+			ad->color_large_1[0], ad->color_large_1[1], ad->color_large_1[2],
+			1);
+	cairo_pattern_add_color_stop_rgba(ad->large1_pattern, 0.95,
+			ad->color_large_1[0], ad->color_large_1[1], ad->color_large_1[2],
+			0.3);
+
+	cairo_set_source(ad->cairo, ad->large1_pattern);
+	cairo_set_line_width(ad->cairo, ad->line_width);
 	cairo_arc(ad->cairo, cx, cy, r - 13, 0, 2 * M_PI);
 	cairo_stroke(ad->cairo);
 
-	cairo_set_source_rgba(ad->cairo, ad->color_large_2[0], ad->color_large_2[1],
-			ad->color_large_2[2], 1);
-	cairo_set_line_width(ad->cairo, 20);
-	cairo_arc(ad->cairo, cx, cy, r - 35, 0, 2 * M_PI);
+	cairo_set_source(ad->cairo, ad->large2_pattern);
+	cairo_set_line_width(ad->cairo, ad->line_width);
+	cairo_arc(ad->cairo, cx, cy, r - 53, 0, 2 * M_PI);
 	cairo_stroke(ad->cairo);
 
-	cairo_set_source_rgba(ad->cairo, ad->color_large_3[0], ad->color_large_3[1],
-			ad->color_large_3[2], 1);
-	cairo_set_line_width(ad->cairo, 20);
-	cairo_arc(ad->cairo, cx, cy, r - 57, 0, 2 * M_PI);
+	cairo_set_source(ad->cairo, ad->large3_pattern);
+	cairo_set_line_width(ad->cairo, ad->line_width);
+	cairo_arc(ad->cairo, cx, cy, r - 93, 0, 2 * M_PI);
 	cairo_stroke(ad->cairo);
+
+	//draw sun in center
+	int rsun = 40;
+	cairo_pattern_t *sun_pattern = cairo_pattern_create_radial(cx, cy, 0, cx,
+			cy, rsun);
+	cairo_pattern_add_color_stop_rgba(sun_pattern, 0.05, ad->sun_color[0] - 0.1,
+			ad->sun_color[1] - 0.1, ad->sun_color[2] - 0.1, 1);
+	cairo_pattern_add_color_stop_rgba(sun_pattern, 0.6, ad->sun_color[0],
+			ad->sun_color[1], ad->sun_color[2], 1);
+	cairo_pattern_add_color_stop_rgba(sun_pattern, 0.9, ad->sun_color[0],
+			ad->sun_color[1], ad->sun_color[2], 0);
+
+	cairo_arc(ad->cairo, cx, cy, rsun, ANGLE(0), ANGLE(360));
+	cairo_set_source(ad->cairo, sun_pattern);
+	cairo_fill(ad->cairo);
+	cairo_pattern_destroy(sun_pattern);
+
 	ad->hour24_x = cx;
 	ad->hour24_y = cy;
 	ad->minute_x = cx;
@@ -155,6 +239,7 @@ int init_watch(appdata_s *ad) {
 }
 
 void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
+	//return;
 	int size = ad->width;
 	int cx = size / 2;
 	int cy = size / 2;
@@ -166,92 +251,90 @@ void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	watch_time_get_minute(watch_time, &minute);
 	watch_time_get_second(watch_time, &second);
 
-	/* Variables for display time */
-	double side, radian;
-	cairo_line_cap_t line_cap_style;
-	cairo_line_join_t line_join_style;
+	if (hour24 == ad->hour24 && minute == ad->minute) {
+		return;
+	}
+	ad->hour24 = hour24;
+	ad->minute = minute;
+	if (ad->hour24_x != cx && ad->hour24_y != cy) {
+		int rt = 12;
+		cairo_arc(ad->cairo, ad->hour24_x, ad->hour24_y, rt, ANGLE(0),
+				ANGLE(360));
+		cairo_set_source_rgba(ad->cairo, ad->background[0], ad->background[1],
+				ad->background[2], 1);
+		cairo_fill(ad->cairo);
 
-	/* Set hour hand line style, width */
-	line_cap_style = CAIRO_LINE_CAP_ROUND;
-	line_join_style = CAIRO_LINE_JOIN_BEVEL;
-	cairo_set_line_join(ad->cairo, line_join_style);
-	cairo_set_line_cap(ad->cairo, line_cap_style);
-
-	//clear history
-	cairo_set_line_width(ad->cairo, 12);
-	cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-	cairo_move_to(ad->cairo, cx, cy);
-	cairo_line_to(ad->cairo, ad->hour24_x, ad->hour24_y);
-	cairo_stroke(ad->cairo);
-	//clear history
-	cairo_set_line_width(ad->cairo, 8);
-	cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-	cairo_move_to(ad->cairo, cx, cy);
-	cairo_line_to(ad->cairo, ad->minute_x, ad->minute_y);
-	cairo_stroke(ad->cairo);
-
-	if (!ambient) {
-		//clear second history
-		cairo_set_line_width(ad->cairo, 6);
-		cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-		cairo_move_to(ad->cairo, ad->second_x, ad->second_y);
-		cairo_line_to(ad->cairo, ad->second_bar_x, ad->second_bar_y);
+		cairo_set_source(ad->cairo, ad->large3_pattern);
+		cairo_set_line_width(ad->cairo, ad->line_width);
+		cairo_arc(ad->cairo, cx, cy, r - 93, 0, 2 * M_PI);
 		cairo_stroke(ad->cairo);
+
+//		cairo_set_source_rgba(ad->cairo,  ad->color_large_3[0],
+//						ad->color_large_3[1], ad->color_large_3[2], 0.2);
+//				cairo_set_line_width(ad->cairo, 4);
+//				cairo_arc(ad->cairo, cx, cy, r - 93, 0, 2 * M_PI);
+//		cairo_stroke(ad->cairo);
+	}
+	if (ad->minute_x != cx && ad->minute_y != cy) {
+		int rt = 12;
+		cairo_arc(ad->cairo, ad->minute_x, ad->minute_y, rt, ANGLE(0),
+				ANGLE(360));
+		cairo_set_source_rgba(ad->cairo, ad->background[0], ad->background[1],
+				ad->background[2], 1);
+		cairo_fill(ad->cairo);
+
+		cairo_set_source(ad->cairo, ad->large2_pattern);
+		cairo_set_line_width(ad->cairo, ad->line_width);
+		cairo_arc(ad->cairo, cx, cy, r - 53, 0, 2 * M_PI);
+		cairo_stroke(ad->cairo);
+
 	}
 
+	/* Variables for display time */
+	double side, radian;
+
 	/* Set hour hand line color */
-	side = r / 3;
+	cairo_set_line_width(ad->cairo, 1);
+	side = r - 93;
 	radian = -(1.0 * minute / 60 + hour24) * (M_PI / 180);
 	ad->hour24_x = cx - (side * sin(radian * 30));
 	ad->hour24_y = cy - (side * cos(radian * 30));
-	cairo_set_line_width(ad->cairo, 11);
-	cairo_set_source_rgba(ad->cairo, ad->color_hour[0], ad->color_hour[1],
-			ad->color_hour[2], 1);
-	cairo_move_to(ad->cairo, cx, cy);
-	cairo_line_to(ad->cairo, ad->hour24_x, ad->hour24_y);
-	cairo_stroke(ad->cairo);
+	int rt = 11;
+	cairo_pattern_t *sun_pattern = cairo_pattern_create_radial(ad->hour24_x,
+			ad->hour24_y, 0, ad->hour24_x, ad->hour24_y, rt);
+	cairo_pattern_add_color_stop_rgba(sun_pattern, 0.05,
+			ad->earth_color[0] - 0.1, ad->earth_color[1] - 0.1,
+			ad->earth_color[2] - 0.1, 1);
+	cairo_pattern_add_color_stop_rgba(sun_pattern, 0.6, ad->earth_color[0],
+			ad->earth_color[1], ad->earth_color[2], 1);
+	cairo_pattern_add_color_stop_rgba(sun_pattern, 0.9, ad->earth_color[0],
+			ad->earth_color[1], ad->earth_color[2], 0);
+
+	cairo_arc(ad->cairo, ad->hour24_x, ad->hour24_y, rt, ANGLE(0), ANGLE(360));
+	cairo_set_source(ad->cairo, sun_pattern);
+	cairo_fill(ad->cairo);
+	cairo_pattern_destroy(sun_pattern);
 
 	/* Set minute hand line color */
-	cairo_set_line_width(ad->cairo, 7);
-	cairo_set_source_rgba(ad->cairo, ad->color_minute[0], ad->color_minute[1],
-			ad->color_minute[2], 1);
-	side = r / 1.8;
+	side = r - 53;
 	radian = -minute * (M_PI / 180);
 	ad->minute_x = cx - (side * sin(radian * 6));
 	ad->minute_y = cy - (side * cos(radian * 6));
-	cairo_move_to(ad->cairo, cx, cy);
-	cairo_line_to(ad->cairo, ad->minute_x, ad->minute_y);
-	cairo_stroke(ad->cairo);
 
-	/* Set second hand line style, width */
-	if (!ambient) {
-		cairo_set_line_width(ad->cairo, 4);
-		cairo_set_source_rgba(ad->cairo, ad->color_second[0],
-				ad->color_second[1], ad->color_second[2], 1);
-		side = r - 77;
-		radian = -second * (M_PI / 180);
-		ad->second_x = cx - (side * sin(radian * 6));
-		ad->second_y = cy - (side * cos(radian * 6));
+	cairo_pattern_t * moon_pattern = cairo_pattern_create_radial(ad->minute_x,
+			ad->minute_y, 0, ad->minute_x, ad->minute_y, rt);
+	cairo_pattern_add_color_stop_rgba(moon_pattern, 0.05,
+			ad->moon_color[0] - 0.1, ad->moon_color[1] - 0.1,
+			ad->moon_color[2] - 0.1, 1);
+	cairo_pattern_add_color_stop_rgba(moon_pattern, 0.6, ad->moon_color[0],
+			ad->moon_color[1], ad->moon_color[2], 1);
+	cairo_pattern_add_color_stop_rgba(moon_pattern, 0.9, ad->moon_color[0],
+			ad->moon_color[1], ad->moon_color[2], 0);
 
-		int ra = 6;
-		ad->second_bar_x = ((ra + 1) * cx - ad->second_x) / ra;
-		ad->second_bar_y = ((ra + 1) * cy - ad->second_y) / ra;
-		cairo_move_to(ad->cairo, ad->second_bar_x, ad->second_bar_y);
-		cairo_line_to(ad->cairo, ad->second_x, ad->second_y);
-		cairo_stroke(ad->cairo);
-
-		//center red points
-		cairo_set_source_rgba(ad->cairo, ad->color_second[0],
-				ad->color_second[1], ad->color_second[2], 1);
-		cairo_set_line_width(ad->cairo, 7);
-		cairo_arc(ad->cairo, cx, cy, 6, 0, 2 * M_PI);
-		cairo_fill(ad->cairo);
-
-		cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-		cairo_set_line_width(ad->cairo, 2);
-		cairo_arc(ad->cairo, cx, cy, 2, 0, 2 * M_PI);
-		cairo_fill(ad->cairo);
-	}
+	cairo_arc(ad->cairo, ad->minute_x, ad->minute_y, rt, ANGLE(0), ANGLE(360));
+	cairo_set_source(ad->cairo, moon_pattern);
+	cairo_fill(ad->cairo);
+	cairo_pattern_destroy(moon_pattern);
 
 	/* Display this cairo watch on screen */
 	cairo_surface_flush(ad->surface);

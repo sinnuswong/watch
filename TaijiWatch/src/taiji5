@@ -3,7 +3,6 @@
 #include "taijiwatch.h"
 #include <cairo.h>
 #include <math.h>
-#include "googlecode.c"
 /* 把角度转换为所对应的弧度 */
 #define ANGLE(ang)	(ang * 3.1415926 / 180.0)
 typedef struct appdata {

@@ -477,26 +477,31 @@ static Eina_Bool update_solar_system(appdata_s *ad) {
 	int x = cx;
 	int y = cy;
 	r = computeRidus(size / 2, size / 2, x, y);
-//	cairo_matrix_init_scale(ad->matrix, ad->w / r, ad->h / r);
+	cairo_matrix_init_scale(ad->matrix,0.2,0.2);
 //	cairo_pattern_set_matrix(ad->pattern, ad->matrix);
 
 	//cairo_translate(ad->cairo, x-r/2, y-r/2);
-	cairo_set_source_surface(ad->cairo, ad->image,1,1);
-	cairo_arc(ad->cairo, cx,cy,cx,0,ANGLE(360));
-	cairo_clip(ad->cairo);
+//	cairo_scale(ad->cairo,0.2,0.2);
+	cairo_set_matrix (ad->cairo,ad->matrix);
+	//cairo_scale(ad->cairo,2,2);
+	cairo_set_source_surface(ad->cairo, ad->image,cx*5,cy*5);
+	//cairo_arc(ad->cairo, cx,cy,cx,0,ANGLE(360));
+	//cairo_clip(ad->cairo)
+	cairo_paint(ad->cairo);
+	cairo_scale(ad->cairo,5,5);
 	//cairo_translate(ad->cairo, -x+r/2, -y+r/2);
 
-	x = cx - r - 5;
-	y = cy - r - 5;
-	r = computeRidus(size / 2, size / 2, x, y);
-	cairo_matrix_init_scale(ad->matrix, ad->w / r, ad->h / r);
-	cairo_pattern_set_matrix(ad->pattern, ad->matrix);
-
-	cairo_translate(ad->cairo, x - r / 2, y - r / 2);
-	cairo_set_source(ad->cairo, ad->pattern);
-	cairo_rectangle(ad->cairo, 0, 0, 1.2*r, 1.2*r);
-	cairo_fill(ad->cairo);
-	cairo_translate(ad->cairo, -x + r / 2, -y + r / 2);
+//	x = cx - r - 5;
+//	y = cy - r - 5;
+//	r = computeRidus(size / 2, size / 2, x, y);
+//	cairo_matrix_init_scale(ad->matrix, ad->w / r, ad->h / r);
+//	cairo_pattern_set_matrix(ad->pattern, ad->matrix);
+//
+//	cairo_translate(ad->cairo, x - r / 2, y - r / 2);
+//	cairo_set_source(ad->cairo, ad->pattern);
+//	cairo_rectangle(ad->cairo, 0, 0, 1.2*r, 1.2*r);
+//	cairo_fill(ad->cairo);
+//	cairo_translate(ad->cairo, -x + r / 2, -y + r / 2);
 
 	cairo_surface_flush(ad->surface);
 

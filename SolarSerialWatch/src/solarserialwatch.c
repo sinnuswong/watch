@@ -4,6 +4,12 @@
 #include <cairo.h>
 #include <math.h>
 #include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <unistd.h>
+#include <iconv.h>
+#define OUTLEN 255
 /* 把角度转换为所对应的弧度 */
 #define ANGLE(ang)	(ang * 3.1415926 / 180.0)
 double interval = 0.1;
@@ -108,7 +114,30 @@ static void free_data(appdata_s *ad) {
 	free(ad->watch_text);
 	free(ad->extents);
 }
+int code_convert(char *from_charset,char *to_charset,char *inbuf,int inlen,char *outbuf,int outlen)
+{
+    iconv_t cd;
+    int rc;
+    char **pin = &inbuf;
+    char **pout = &outbuf;
 
+    cd = iconv_open(to_charset,from_charset);
+    if (cd==0) return -1;
+    memset(outbuf,0,outlen);
+    if (iconv(cd,pin,&inlen,pout,&outlen)==-1) return -1;
+    iconv_close(cd);
+    return 0;
+}
+/*UNICODE码转为GB2312码*/
+int u2g(char *inbuf,int inlen,char *outbuf,int outlen)
+{
+    return code_convert("utf-8","gb2312",inbuf,inlen,outbuf,outlen);
+}
+/*GB2312码转为UNICODE码*/
+int g2u(char *inbuf,size_t inlen,char *outbuf,size_t outlen)
+{
+    return code_convert("gb2312","utf-8",inbuf,inlen,outbuf,outlen);
+}
 int init_solar_system(appdata_s *ad) {
 	ad->sun_color = get_color(sun_color_s);
 	ad->moon_color = get_color(moon_color_s);
@@ -120,13 +149,14 @@ int init_solar_system(appdata_s *ad) {
 	cx = size;
 	cy = size;
 	int r = size;
-	ad->cur_position_x = cx;
+	ad->cur_position_x = cx - 50;
 	ad->cur_position_y = cy;
 	ad->sun_pattern = cairo_pattern_create_radial(ad->cur_position_x,
 			ad->cur_position_y, 0, ad->cur_position_x, ad->cur_position_y,
 			size / 4);
-	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.05, ad->sun_color[0] - 0.1,
-			ad->sun_color[1] - 0.1, ad->sun_color[2] - 0.1, 1);
+	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.05,
+			ad->sun_color[0] - 0.1, ad->sun_color[1] - 0.1,
+			ad->sun_color[2] - 0.1, 1);
 	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.5, ad->sun_color[0],
 			ad->sun_color[1], ad->sun_color[2], 1);
 	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.9, ad->sun_color[0],
@@ -147,13 +177,12 @@ int init_solar_system(appdata_s *ad) {
 	//init text size and width and length
 	ad->watch_text = (char*) malloc(TEXT_BUF_SIZE * sizeof(char));
 	ad->extents = (cairo_text_extents_t *) malloc(sizeof(cairo_text_extents_t));
-
-	cairo_set_source_rgba(ad->cairo, 1, 1, 1, 1);
 	cairo_select_font_face(ad->cairo, "Courier", CAIRO_FONT_SLANT_NORMAL,
 			CAIRO_FONT_WEIGHT_NORMAL);
-	cairo_set_font_size(ad->cairo, 20);
+	cairo_set_font_size(ad->cairo, 36);
+	 //   s sevas_object_move
 
-	snprintf(ad->watch_text, TEXT_BUF_SIZE, "%02d:%02d", 11, 59);
+	snprintf(ad->watch_text, TEXT_BUF_SIZE, "%02d:%02d", 99, 99);
 	cairo_text_extents(ad->cairo, ad->watch_text, ad->extents);
 	return 0;
 }
@@ -167,46 +196,48 @@ static void update_solar_system(appdata_s *ad, int hour24, int minute,
 
 	//clear earth history
 	cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-	cairo_arc(ad->cairo, ad->earth_center_x, ad->earth_center_y, r / 12,
+	cairo_arc(ad->cairo, ad->earth_center_x, ad->earth_center_y, r / 12 + 2,
 			ANGLE(0), ANGLE(360));
 	cairo_fill(ad->cairo);
 
 	//clear moon history
 	cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-	cairo_arc(ad->cairo, ad->moon_center_x, ad->moon_center_y, 3, ANGLE(0),
+	cairo_arc(ad->cairo, ad->moon_center_x, ad->moon_center_y, 4, ANGLE(0),
 			ANGLE(360));
 	cairo_fill(ad->cairo);
+
 	//remove history.and set black
-	cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-	cairo_rectangle(ad->cairo, size - ad->extents->width - 20,
-			size / 2 - ad->extents->height / 2, ad->extents->width,
-			ad->extents->height);
-	cairo_fill(ad->cairo);
+	cairo_set_source_rgba(ad->cairo, 0,0,0, 1);
+		cairo_rectangle(ad->cairo,256,
+				165 ,110,30);
+		cairo_fill(ad->cairo);
 
 	//draw earth
 	ad->earth_side = r / 1.7;
 	ad->earth_radian = -(second * 1000 + msecond) * (M_PI / 180);
 	double a = 22 * M_PI / 180;
-	ad->earth_center_x = cx + 20
+	ad->earth_center_x = ad->cur_position_x + 60
 			- (ad->earth_side * 1.5 * sin(ad->earth_radian * 0.006) * cos(a)
 					+ ad->earth_side / 1.5 * cos(ad->earth_radian * 0.006)
 							* sin(a));
-	ad->earth_center_y = cy - 10
+	ad->earth_center_y = ad->cur_position_y - 20
 			- (ad->earth_side / 1.5 * cos(ad->earth_radian * 0.006) * cos(a)
 					- ad->earth_side * 1.5 * sin(ad->earth_radian * 0.006)
 							* sin(a));
 
+	int earth_r = r/10;
+
 	ad->earth_pattern = cairo_pattern_create_radial(ad->earth_center_x,
 			ad->earth_center_y, 0, ad->earth_center_x, ad->earth_center_y,
-			r / 10);
+			earth_r);
 	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.05,
-			ad->earth_color[0] - 0.1, ad->earth_color[1] - 0.1, ad->earth_color[2] - 0.1,
-			1);
-	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.5, ad->earth_color[0],
-			ad->earth_color[1], ad->earth_color[2], 1);
-	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.9, ad->earth_color[0],
-			ad->earth_color[1], ad->earth_color[2], 0);
-	cairo_arc(ad->cairo, ad->earth_center_x, ad->earth_center_y, r / 12,
+			ad->earth_color[0] - 0.1, ad->earth_color[1] - 0.1,
+			ad->earth_color[2] - 0.1, 1);
+	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.5,
+			ad->earth_color[0], ad->earth_color[1], ad->earth_color[2], 1);
+	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.9,
+			ad->earth_color[0], ad->earth_color[1], ad->earth_color[2], 0);
+	cairo_arc(ad->cairo, ad->earth_center_x, ad->earth_center_y, earth_r,
 			ANGLE(0), ANGLE(360));
 	cairo_set_source(ad->cairo, ad->earth_pattern);
 	cairo_fill(ad->cairo);
@@ -225,15 +256,52 @@ static void update_solar_system(appdata_s *ad, int hour24, int minute,
 	cairo_fill(ad->cairo);
 
 	//add new time text
-	cairo_set_source_rgba(ad->cairo, 1, 1, 1, 1);
+
+	double ca = (double)250/256;
+	double cb,cc;
+	cb =(double)71/256;
+	cc = (double)117/256;
+	cairo_set_source_rgba(ad->cairo, 0.6,0.6,0.6, 1);
 	cairo_select_font_face(ad->cairo, "Courier", CAIRO_FONT_SLANT_NORMAL,
 			CAIRO_FONT_WEIGHT_NORMAL);
-	cairo_set_font_size(ad->cairo, 20);
+	cairo_set_font_size(ad->cairo, 36);
 
 	snprintf(ad->watch_text, TEXT_BUF_SIZE, "%02d:%02d", hour24, minute);
-	cairo_move_to(ad->cairo, size - ad->extents->width - 20,
-			size / 2 + ad->extents->height / 2);
-	cairo_show_text(ad->cairo, ad->watch_text);
+//	cairo_text_extents(ad->cairo, ad->watch_text, ad->extents);
+//	cairo_move_to(ad->cairo, size - ad->extents->width - 20,
+//			size / 2 + ad->extents->height / 2);
+//	cairo_show_text(ad->cairo, ad->watch_text);
+	cairo_text_extents_t te;
+	char *alphabet =ad->watch_text;
+	char letter[2];
+	for (int i=0; i < strlen(alphabet); i++)
+	{
+	cairo_set_source_rgba(ad->cairo, 0.6-i*0.1,0.6-i*0.1,0.6-i*0.1, 1);
+	*letter = '\0';
+	strncat (letter, alphabet + i, 1);
+	cairo_text_extents (ad->cairo, letter, &te);
+	int tx = 270+i*20 + 0.5 - te.x_bearing - te.width / 2;
+	if(i== 2) tx-=4;
+	if(i>=3) tx-=8;
+	int ty = 180+0.5 - te.y_bearing - te.height / 2;
+	cairo_move_to (ad->cairo, tx,ty);
+	cairo_show_text (ad->cairo, letter);
+	}
+//	char *week = "wed";
+//	var current_dt = time.getCurrentDateTime();
+//	//console.log ("current date / time is " + current_dt.toLocaleString());
+//	dlog_print(DLOG_ERROR, LOG_TAG, "get color %s",ocurrent_dt.toLocaleString());
+//	char out[OUTLEN];
+//	int rc = g2u(week,strlen(week),out,OUTLEN);
+//	    printf("gb2312-->unicode out=%sn",out);
+//	dlog_print(DLOG_ERROR, LOG_TAG, "get color %s %d",out,strlen(out));
+//	cairo_select_font_face(ad->cairo, "Adobe Heiti Std", CAIRO_FONT_SLANT_NORMAL,
+//				CAIRO_FONT_WEIGHT_NORMAL);
+//
+//		cairo_text_extents(ad->cairo, week, ad->extents);
+//		cairo_move_to(ad->cairo, size - ad->extents->width - 20,
+//				size / 2 + ad->extents->height / 2);
+//		cairo_show_text(ad->cairo, week);
 
 	/* Display this cairo watch on screen */
 	cairo_surface_flush(ad->surface);
@@ -421,27 +489,27 @@ static void app_resume(void *data) {
 	if (ad->timer) {
 		ecore_animator_thaw(ad->timer);
 	} else {
-	ad->timer = ecore_timer_add(interval, _timer1_cb, ad);
-}
+		ad->timer = ecore_timer_add(interval, _timer1_cb, ad);
+	}
 }
 
 /*
  * @brief This callback function is called once after the main loop of the application exits
  */
 static void app_terminate(void *data) {
-/* Release all resources. */
-appdata_s *ad = data;
-/* Destroy cairo surface and context */
-free_data(ad);
+	/* Release all resources. */
+	appdata_s *ad = data;
+	/* Destroy cairo surface and context */
+	free_data(ad);
 }
 
 /*
  * @brief This function will be called at each second.
  */
 static void app_time_tick(watch_time_h watch_time, void *data) {
-/* Called at each second while your app is visible. Update watch UI. */
+	/* Called at each second while your app is visible. Update watch UI. */
 
-appdata_s *ad = data;
+	appdata_s *ad = data;
 //	if(ad->ambient_mode == 0)
 //	update_watch(ad, watch_time, 0);
 //	if (!ad->timer) {
@@ -453,95 +521,95 @@ appdata_s *ad = data;
  * @brief This function will be called at each minute.
  */
 static void app_ambient_tick(watch_time_h watch_time, void *data) {
-/* Called at each minute while the device is in ambient mode. Update watch UI. */
-appdata_s *ad = data;
+	/* Called at each minute while the device is in ambient mode. Update watch UI. */
+	appdata_s *ad = data;
 //	update_watch(ad, watch_time, 1);
-if (ad->ambient_mode) {
-	int hour24, minute, second;
+	if (ad->ambient_mode) {
+		int hour24, minute, second;
 
-	/* Get current time */
-	watch_time_get_hour24(watch_time, &hour24);
-	watch_time_get_minute(watch_time, &minute);
-	watch_time_get_second(watch_time, &second);
+		/* Get current time */
+		watch_time_get_hour24(watch_time, &hour24);
+		watch_time_get_minute(watch_time, &minute);
+		watch_time_get_second(watch_time, &second);
 
-	ad->hour24 = hour24;
-	ad->minute = minute;
-	ad->second = second;
-	update_solar_system(ad, hour24, minute, second, 0);
-}
+		ad->hour24 = hour24;
+		ad->minute = minute;
+		ad->second = second;
+		update_solar_system(ad, hour24, minute, second, 0);
+	}
 }
 
 /*
  * @brief This function will be called when the ambient mode is changed
  */
 static void app_ambient_changed(bool ambient_mode, void *data) {
-/* Update your watch UI to conform to the ambient mode */
-appdata_s *ad = data;
-ad->ambient_mode = ambient_mode;
-if (ambient_mode) {
-	if (ad->timer) {
-		ecore_timer_freeze(ad->timer);
-	}
-} else {
-	if (!ambient_mode) {
-		if (!ad->timer) {
-			app_resume(data);
-		} else {
-			ecore_timer_thaw(ad->timer);
+	/* Update your watch UI to conform to the ambient mode */
+	appdata_s *ad = data;
+	ad->ambient_mode = ambient_mode;
+	if (ambient_mode) {
+		if (ad->timer) {
+			ecore_timer_freeze(ad->timer);
+		}
+	} else {
+		if (!ambient_mode) {
+			if (!ad->timer) {
+				app_resume(data);
+			} else {
+				ecore_timer_thaw(ad->timer);
+			}
 		}
 	}
-}
 }
 
 /*
  * @brief This function will be called when the language is changed
  */
 static void watch_app_lang_changed(app_event_info_h event_info, void *user_data) {
-/*APP_EVENT_LANGUAGE_CHANGED*/
-char *locale = NULL;
-app_event_get_language(event_info, &locale);
-elm_language_set(locale);
-free(locale);
-return;
+	/*APP_EVENT_LANGUAGE_CHANGED*/
+	char *locale = NULL;
+	app_event_get_language(event_info, &locale);
+	elm_language_set(locale);
+	free(locale);
+	return;
 }
 
 /*
  * @brief This function will be called when the region is changed
  */
 static void watch_app_region_changed(app_event_info_h event_info,
-	void *user_data) {
-/*APP_EVENT_REGION_FORMAT_CHANGED*/
+		void *user_data) {
+	/*APP_EVENT_REGION_FORMAT_CHANGED*/
 }
 
 /*
  * @brief Main function of the application
  */
 int main(int argc, char *argv[]) {
-appdata_s ad = { 0, };
-int ret = 0;
+	appdata_s ad = { 0, };
+	int ret = 0;
 
-watch_app_lifecycle_callback_s event_callback = { 0, };
-app_event_handler_h handlers[5] = { NULL, };
+	watch_app_lifecycle_callback_s event_callback = { 0, };
+	app_event_handler_h handlers[5] = { NULL, };
 
-event_callback.create = app_create;
-event_callback.terminate = app_terminate;
-event_callback.pause = app_pause;
-event_callback.resume = app_resume;
-event_callback.app_control = app_control;
-event_callback.time_tick = app_time_tick;
-event_callback.ambient_tick = app_ambient_tick;
-event_callback.ambient_changed = app_ambient_changed;
+	event_callback.create = app_create;
+	event_callback.terminate = app_terminate;
+	event_callback.pause = app_pause;
+	event_callback.resume = app_resume;
+	event_callback.app_control = app_control;
+	event_callback.time_tick = app_time_tick;
+	event_callback.ambient_tick = app_ambient_tick;
+	event_callback.ambient_changed = app_ambient_changed;
 
-watch_app_add_event_handler(&handlers[APP_EVENT_LANGUAGE_CHANGED],
-		APP_EVENT_LANGUAGE_CHANGED, watch_app_lang_changed, &ad);
-watch_app_add_event_handler(&handlers[APP_EVENT_REGION_FORMAT_CHANGED],
-		APP_EVENT_REGION_FORMAT_CHANGED, watch_app_region_changed, &ad);
+	watch_app_add_event_handler(&handlers[APP_EVENT_LANGUAGE_CHANGED],
+			APP_EVENT_LANGUAGE_CHANGED, watch_app_lang_changed, &ad);
+	watch_app_add_event_handler(&handlers[APP_EVENT_REGION_FORMAT_CHANGED],
+			APP_EVENT_REGION_FORMAT_CHANGED, watch_app_region_changed, &ad);
 
-ret = watch_app_main(argc, argv, &event_callback, &ad);
-if (ret != APP_ERROR_NONE)
-	dlog_print(DLOG_ERROR, LOG_TAG, "watch_app_main() is failed. err = %d",
-			ret);
+	ret = watch_app_main(argc, argv, &event_callback, &ad);
+	if (ret != APP_ERROR_NONE)
+		dlog_print(DLOG_ERROR, LOG_TAG, "watch_app_main() is failed. err = %d",
+				ret);
 
-return ret;
+	return ret;
 }
 

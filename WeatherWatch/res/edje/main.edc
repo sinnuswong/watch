@@ -1,0 +1,703 @@
+/*
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd
+ *
+ * Licensed under the Flora License, Version 1.1 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://floralicense.org/license/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#define WATCH_WIDTH 360
+#define WATCH_HEIGHT 360
+#define WEATHER_ICON_DESCRIPTION(ICON) \
+   description {  state: ICON 0.0;\
+                  inherit: "default" 0.0;\
+                  image {\
+                    normal: "weather_icon/"ICON".png";\
+                  }\
+               }
+
+#define WEATHER_ICON_PROGRAM(ICON) \
+      programs {\
+         program {\
+            signal: "change,weather,"ICON;\
+            source: "img.weather";\
+            action: STATE_SET ICON 0.0;\
+            target: "img.weather";\
+         }\
+      }
+
+images {
+   image: "background_app.png" COMP;
+   image: "hour_numbers.png" COMP;
+   image: "second_path.png" COMP;
+   image: "weather_icon/01d.png" COMP;
+   image: "weather_icon/02d.png" COMP;
+   image: "weather_icon/03d.png" COMP;
+   image: "weather_icon/04d.png" COMP;
+   image: "weather_icon/09d.png" COMP;
+   image: "weather_icon/10d.png" COMP;
+   image: "weather_icon/11d.png" COMP;
+   image: "weather_icon/13d.png" COMP;
+   image: "weather_icon/50d.png" COMP;
+   image: "weather_icon/01n.png" COMP;
+   image: "weather_icon/02n.png" COMP;
+   image: "weather_icon/03n.png" COMP;
+   image: "weather_icon/04n.png" COMP;
+   image: "weather_icon/09n.png" COMP;
+   image: "weather_icon/10n.png" COMP;
+   image: "weather_icon/11n.png" COMP;
+   image: "weather_icon/13n.png" COMP;
+   image: "weather_icon/50n.png" COMP;
+   image: "color_status/battery_icon_blue.png" COMP;
+   image: "color_status/battery_icon_green.png" COMP;
+   image: "color_status/battery_icon_yellow.png" COMP;
+   image: "color_status/battery_icon_orange.png" COMP;
+   image: "color_status/battery_icon_red.png" COMP;
+   image: "color_status/air_pollution_icon_blue.png" COMP;
+   image: "color_status/air_pollution_icon_green.png" COMP;
+   image: "color_status/air_pollution_icon_yellow.png" COMP;
+   image: "color_status/air_pollution_icon_orange.png" COMP;
+   image: "color_status/air_pollution_icon_red.png" COMP;
+   image: "color_status/blue_indicator.png" COMP;
+   image: "color_status/green_indicator.png" COMP;
+   image: "color_status/orange_indicator.png" COMP;
+   image: "color_status/red_indicator.png" COMP;
+   image: "color_status/yellow_indicator.png" COMP;
+   image: "status_indicator.png" COMP;
+}
+
+   styles {
+      style {
+         name: "calendar_textblock_style";
+         base: "font=Tizen:style=Regular text_class=tizen align=center font_size="15" color=#FFFFFF";
+         tag: "day" "+ font=Tizen:style=Bold font_size="23" color=#DBD303";
+      }
+  style {
+	 name: "weather_textblock_style";
+	 base: "font=Tizen:style=Regular text_class=tizen align=left font_size="12" color=#FFFFFF";
+   }
+      }
+
+collections {
+   group { name: "layout_watchface";
+      parts {
+         part { name: "img.bg";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 0.5 0.5;
+               }
+               rel2 {
+                  relative: 0.5 0.5;
+               }
+               align: 0.0 0.0;
+               min: WATCH_WIDTH WATCH_HEIGHT;
+               max: WATCH_WIDTH WATCH_HEIGHT;
+               fixed: 1 1;
+               image {
+                  normal: "background_app.png";
+               }
+            }
+         }
+         part { name: "img.hour.number";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 0.5 0.5;
+               }
+               rel2 {
+                  relative: 0.5 0.5;
+               }
+               align: 0.0 0.0;
+               min: WATCH_WIDTH WATCH_HEIGHT;
+               max: WATCH_WIDTH WATCH_HEIGHT;
+               fixed: 1 1;
+               image {
+                  normal: "hour_numbers.png";
+               }
+            }
+         }
+         part { name: "img.second.path";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 0.5 0.5;
+               }
+               rel2 {
+                  relative: 0.5 0.5;
+               }
+               align: 0.0 0.0;
+               min: WATCH_WIDTH WATCH_HEIGHT;
+               max: WATCH_WIDTH WATCH_HEIGHT;
+               fixed: 1 1;
+               image {
+                  normal: "second_path.png";
+               }
+            }
+         }
+         part { name: "sw.battery.module";
+            type: SWALLOW;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 200/WATCH_WIDTH 114/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               rel2 {
+                  relative: 200/WATCH_WIDTH 114/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               align: 0.0 0.0;
+               min: 88 88;
+               max: 88 88;
+               fixed: 1 1;
+            }
+         }
+         part { name: "sw.air.pollution.module";
+            type: SWALLOW;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 72/WATCH_WIDTH 114/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               rel2 {
+                  relative: 72/WATCH_WIDTH 114/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               align: 0.0 0.0;
+               min: 88 88;
+               max: 88 88;
+               fixed: 1 1;
+            }
+         }
+         part { name: "txt.calendar";
+            type: TEXTBLOCK;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 117/WATCH_WIDTH 229/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               rel2 {
+                  relative: (203 + 28)/WATCH_WIDTH (229 + 30)/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               align: 0.5 0.5;
+               text {
+                  style: "calendar_textblock_style";
+                  text: "FEBRUARY <day>21</day>";
+               }
+            }
+         }
+         part { name: "img.weather";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 158/WATCH_WIDTH 270/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               rel2 {
+                   relative: 158/WATCH_WIDTH 270/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               align: 0.5 0.5;
+               min: 26 26;
+               max: 26 26;
+               fixed: 1 1;
+               image {
+                   normal: "weather_icon/01d.png";
+               }
+            }
+            WEATHER_ICON_DESCRIPTION("01d");
+            WEATHER_ICON_DESCRIPTION("02d");
+            WEATHER_ICON_DESCRIPTION("03d");
+            WEATHER_ICON_DESCRIPTION("04d");
+            WEATHER_ICON_DESCRIPTION("09d");
+            WEATHER_ICON_DESCRIPTION("10d");
+            WEATHER_ICON_DESCRIPTION("11d");
+            WEATHER_ICON_DESCRIPTION("13d");
+            WEATHER_ICON_DESCRIPTION("50d");
+            WEATHER_ICON_DESCRIPTION("01n");
+            WEATHER_ICON_DESCRIPTION("02n");
+            WEATHER_ICON_DESCRIPTION("03n");
+            WEATHER_ICON_DESCRIPTION("04n");
+            WEATHER_ICON_DESCRIPTION("09n");
+            WEATHER_ICON_DESCRIPTION("10n");
+            WEATHER_ICON_DESCRIPTION("11n");
+            WEATHER_ICON_DESCRIPTION("13n");
+            WEATHER_ICON_DESCRIPTION("50n");
+         }
+         part { name: "txt.weather";
+            type: TEXTBLOCK;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 176/WATCH_WIDTH 262/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               rel2 {
+                  relative: 176/WATCH_WIDTH 262/WATCH_HEIGHT;
+                  to: "img.bg";
+               }
+               align: 0 0;
+               min: 180 17;
+               max: 180 17;
+               fixed: 1 1;
+               text {
+                  style: "weather_textblock_style";
+                  text: "Clear Sky";
+               }
+            }
+         }
+      }
+      //parts end
+      WEATHER_ICON_PROGRAM("01d");
+      WEATHER_ICON_PROGRAM("02d");
+      WEATHER_ICON_PROGRAM("03d");
+      WEATHER_ICON_PROGRAM("04d");
+      WEATHER_ICON_PROGRAM("09d");
+      WEATHER_ICON_PROGRAM("10d");
+      WEATHER_ICON_PROGRAM("11d");
+      WEATHER_ICON_PROGRAM("13d");
+      WEATHER_ICON_PROGRAM("50d");
+      WEATHER_ICON_PROGRAM("01n");
+      WEATHER_ICON_PROGRAM("02n");
+      WEATHER_ICON_PROGRAM("03n");
+      WEATHER_ICON_PROGRAM("04n");
+      WEATHER_ICON_PROGRAM("09n");
+      WEATHER_ICON_PROGRAM("10n");
+      WEATHER_ICON_PROGRAM("11n");
+      WEATHER_ICON_PROGRAM("13n");
+      WEATHER_ICON_PROGRAM("50n");
+      //programs end
+   }
+   //group end
+   group { name: "layout_battery_module";
+      parts {
+         part { name: "img.battery.bg";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 0.0 0.0;
+               }
+               rel2 {
+                  relative: 1.0 1.0;
+               }
+               align: 0.0 0.0;
+               min: 88 88;
+               max: 88 88;
+               fixed: 1 1;
+               image {
+                  normal: "status_indicator.png";
+               }
+            }
+         }
+         part { name: "img.battery.icon";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 0.5 0.5;
+                  to: "img.battery.bg";
+               }
+               rel2 {
+                  relative: 0.5 0.5;
+                  to: "img.battery.bg";
+               }
+               align: 0.5 0.5;
+               min: 73 73;
+               max: 73 73;
+               fixed: 1 1;
+               image {
+                  normal: "color_status/battery_icon_green.png";
+               }
+            }
+            description { state: "blue" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/battery_icon_blue.png";
+               }
+            }
+            description { state: "green" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/battery_icon_green.png";
+               }
+            }
+            description { state: "yellow" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/battery_icon_yellow.png";
+               }
+            }
+            description { state: "orange" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/battery_icon_orange.png";
+               }
+            }
+            description { state: "red" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/battery_icon_red.png";
+               }
+            }
+         }
+         part { name: "img.battery.indicator";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  to: "img.battery.bg";
+               }
+               rel2 {
+                  to: "img.battery.bg";
+               }
+               align: 0.5 0.5;
+               image {
+                  normal: "color_status/green_indicator.png";
+               }
+            }
+            description { state: "blue" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/blue_indicator.png";
+               }
+            }
+            description { state: "green" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/green_indicator.png";
+               }
+            }
+            description { state: "yellow" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/yellow_indicator.png";
+               }
+            }
+            description { state: "orange" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/orange_indicator.png";
+               }
+            }
+            description { state: "red" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/red_indicator.png";
+               }
+            }
+         }
+         part { name: "txt.battery";
+            type: TEXT;
+            description { state: "default" 0.0;
+               rel1 {
+                  to: "img.battery.icon";
+               }
+               rel2 {
+                  to: "img.battery.icon";
+               }
+               align: 0.5 0.5;
+               text {
+                  font: "Tizen:style=Bold";
+                  size: 20;
+                  text: "77%";
+                  align: 0.5 0.5;
+               }
+               color: 255 255 255 255;
+               visible: 1;
+            }
+            description { state: "hide" 0.0;
+               inherit: "default" 0.0;
+               visible: 0;
+            }
+         }
+         part { name: "rect.battery";
+            type: RECT;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               rel1 {
+                  to: "img.battery.bg";
+               }
+               rel2 {
+                  to: "img.battery.bg";
+               }
+               color: 0 0 0 0;
+            }
+         }
+      }
+      //parts end
+      programs {
+         program {
+            signal: "mouse,clicked,1";
+            source: "rect.battery";
+            action: SIGNAL_EMIT "mouse,clicked" "rect.battery";
+         }
+         program {
+            signal: "show,battery,txt";
+            source: "txt.battery";
+            action: STATE_SET "default" 0.0;
+            target: "txt.battery";
+         }
+         program {
+            signal: "hide,battery,txt";
+            source: "txt.battery";
+            action: STATE_SET "hide" 0.0;
+            target: "txt.battery";
+         }
+         program {
+            signal: "change,battery,blue";
+            source: "img.battery.icon";
+            action: STATE_SET "blue" 0.0;
+            target: "img.battery.icon";
+            target: "img.battery.indicator";
+         }
+         program {
+            signal: "change,battery,green";
+            source: "img.battery.icon";
+            action: STATE_SET "green" 0.0;
+            target: "img.battery.icon";
+            target: "img.battery.indicator";
+         }
+         program {
+            signal: "change,battery,yellow";
+            source: "img.battery.icon";
+            action: STATE_SET "yellow" 0.0;
+            target: "img.battery.icon";
+            target: "img.battery.indicator";
+         }
+         program {
+            signal: "change,battery,orange";
+            source: "img.battery.icon";
+            action: STATE_SET "orange" 0.0;
+            target: "img.battery.icon";
+            target: "img.battery.indicator";
+         }
+         program {
+            signal: "change,battery,red";
+            source: "img.battery.icon";
+            action: STATE_SET "red" 0.0;
+            target: "img.battery.icon";
+            target: "img.battery.indicator";
+         }
+      }
+      //programs end
+   }
+   //group end
+   group { name: "layout_air_pollution_module";
+      parts {
+         part { name: "img.air_pollution.bg";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 0.0 0.0;
+               }
+               rel2 {
+                  relative: 1.0 1.0;
+               }
+               align: 0.0 0.0;
+               min: 88 88;
+               max: 88 88;
+               fixed: 1 1;
+               image {
+                  normal: "status_indicator.png";
+               }
+            }
+         }
+         part { name: "img.air_pollution.icon";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  relative: 0.5 0.5;
+                  to: "img.air_pollution.bg";
+               }
+               rel2 {
+                  relative: 0.5 0.5;
+                  to: "img.air_pollution.bg";
+               }
+               align: 0.5 0.5;
+               min: 73 73;
+               max: 73 73;
+               fixed: 1 1;
+               image {
+                  normal: "color_status/air_pollution_icon_green.png";
+               }
+            }
+            description { state: "blue" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/air_pollution_icon_blue.png";
+               }
+            }
+            description { state: "green" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/air_pollution_icon_green.png";
+               }
+            }
+            description { state: "yellow" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/air_pollution_icon_yellow.png";
+               }
+            }
+            description { state: "orange" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/air_pollution_icon_orange.png";
+               }
+            }
+            description { state: "red" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/air_pollution_icon_red.png";
+               }
+            }
+         }
+         part { name: "img.air_pollution.indicator";
+            type: IMAGE;
+            description { state: "default" 0.0;
+               rel1 {
+                  to: "img.air_pollution.bg";
+               }
+               rel2 {
+                  to: "img.air_pollution.bg";
+               }
+               align: 0.5 0.5;
+               image {
+                  normal: "color_status/green_indicator.png";
+               }
+            }
+            description { state: "blue" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/blue_indicator.png";
+               }
+            }
+            description { state: "green" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/green_indicator.png";
+               }
+            }
+            description { state: "yellow" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/yellow_indicator.png";
+               }
+            }
+            description { state: "orange" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/orange_indicator.png";
+               }
+            }
+            description { state: "red" 0.0;
+               inherit: "default" 0.0;
+               image {
+                  normal: "color_status/red_indicator.png";
+               }
+            }
+         }
+         part { name: "txt.air_pollution";
+            type: TEXT;
+            description { state: "default" 0.0;
+               rel1 {
+                  to: "img.air_pollution.icon";
+               }
+               rel2 {
+                  to: "img.air_pollution.icon";
+               }
+               align: 0.5 0.5;
+               text {
+                  font: "Tizen:style=Bold";
+                  size: 20;
+                  text: "77AQI";
+                  align: 0.5 0.5;
+               }
+               color: 255 255 255 255;
+               visible: 1;
+            }
+            description { state: "hide" 0.0;
+               inherit: "default" 0.0;
+               visible: 0;
+            }
+         }
+         part { name: "rect.air_pollution";
+            type: RECT;
+            mouse_events: 1;
+            description { state: "default" 0.0;
+               rel1 {
+                  to: "img.air_pollution.bg";
+               }
+               rel2 {
+                  to: "img.air_pollution.bg";
+               }
+               color: 0 0 0 0;
+            }
+         }
+      }
+      //parts end
+      programs {
+         program {
+            signal: "mouse,clicked,1";
+            source: "rect.air_pollution";
+            action: SIGNAL_EMIT "mouse,clicked" "rect.air_pollution";
+         }
+         program {
+            signal: "show,air_pollution,txt";
+            source: "txt.air_pollution";
+            action: STATE_SET "default" 0.0;
+            target: "txt.air_pollution";
+         }
+         program {
+            signal: "hide,air_pollution,txt";
+            source: "txt.air_pollution";
+            action: STATE_SET "hide" 0.0;
+            target: "txt.air_pollution";
+         }
+         program {
+            signal: "change,air_pollution,blue";
+            source: "img.air_pollution.icon";
+            action: STATE_SET "blue" 0.0;
+            target: "img.air_pollution.icon";
+            target: "img.air_pollution.indicator";
+         }
+         program {
+            signal: "change,air_pollution,green";
+            source: "img.air_pollution.icon";
+            action: STATE_SET "green" 0.0;
+            target: "img.air_pollution.icon";
+            target: "img.air_pollution.indicator";
+         }
+         program {
+            signal: "change,air_pollution,yellow";
+            source: "img.air_pollution.icon";
+            action: STATE_SET "yellow" 0.0;
+            target: "img.air_pollution.icon";
+            target: "img.air_pollution.indicator";
+         }
+         program {
+            signal: "change,air_pollution,orange";
+            source: "img.air_pollution.icon";
+            action: STATE_SET "orange" 0.0;
+            target: "img.air_pollution.icon";
+            target: "img.air_pollution.indicator";
+         }
+         program {
+            signal: "change,air_pollution,red";
+            source: "img.air_pollution.icon";
+            action: STATE_SET "red" 0.0;
+            target: "img.air_pollution.icon";
+            target: "img.air_pollution.indicator";
+         }
+      }
+      //programs end
+   }
+   //group end
+}
+//collections end

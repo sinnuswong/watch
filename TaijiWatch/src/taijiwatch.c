@@ -1,10 +1,8 @@
-/* 里面只有圆,是圆在围绕着旋转，秒针，分针、时针都在旋转*/
+/*秒针是圆，时针分针为走针*/
 #include <tizen.h>
 #include "taijiwatch.h"
 #include <cairo.h>
 #include <math.h>
-#define TEXT_BUF_SIZE 256
-
 /* 把角度转换为所对应的弧度 */
 #define ANGLE(ang)	(ang * 3.1415926 / 180.0)
 typedef struct appdata {
@@ -24,7 +22,11 @@ typedef struct appdata {
 	unsigned char *pixels;
 
 } appdata_s;
+double* yin;
+double* yang;
 
+char * yin_color = "#383838";//"#0d4261";
+char * yang_color = "#FFFFFF";
 #define TEXT_BUF_SIZE 256
 
 /*
@@ -37,11 +39,44 @@ typedef struct appdata {
 /* 把角度转换为所对应的弧度 */
 #define ANGLE(ang)	(ang * 3.1415926 / 180.0)
 
+double getNumber(char a) {
+	double res = 0;
+	if (a >= 'A' && a <= 'F')
+		res = (a - 'A' + 10);
+	else
+		res = (a - '0');
+	return res;
+}
+double* get_color(char* in) {
+	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %s",in);
+	//int temp = getNumber()*16+(in[2]-'A'+10);
+	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %d",(in[1]));
+	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %d",('A'));
+	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %d",temp);
+	double* res = (double*) malloc(3 * sizeof(double));
+
+//		return res;
+	double a, b, c;
+	a = getNumber(in[1]) * 16 + getNumber(in[2]);
+	b = getNumber(in[3]) * 16 + getNumber(in[4]);
+	c = getNumber(in[5]) * 16 + getNumber(in[6]);
+	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %f,%f,%f",a,b,c);
+	res[0] = a / 255;
+	res[1] = b / 255;
+	res[2] = c / 255;
+	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %f,%f,%f",res[0],res[1],res[2]);
+	return res;
+}
+void get_color_fo(){
+	dlog_print(DLOG_ERROR, LOG_TAG, "get color %02x%02x%02x",25,11,69);
+}
+
 int init_taiji(cairo_surface_t* surface, cairo_t* cr, int size) {
 	int CX = size / 2;
 	int CY = size / 2;
 	int R = size / 2;
-
+	get_color_fo();
+	//time_test();
 	/* 绘制太极边框 */
 //	cairo_set_line_width(cr, 2.0);
 //	cairo_set_source_rgba(cr, 1.0, 0.8, 0.8, 1);
@@ -51,27 +86,29 @@ int init_taiji(cairo_surface_t* surface, cairo_t* cr, int size) {
 //	double radian = -second *(M_PI/180);
 //	double x = ad->width/2 - (side * sin(radian*6));
 //	double y = ad->height/2 - (side * cos(radian*6));
+//		cairo_translate (cr, CX, CY);
 	/* 绘制阴阳圆 */
-	cairo_set_source_rgba(cr, 0, 0, 0, 1);
+	cairo_set_source_rgba(cr, yin[0], yin[1], yin[2], 1);
 	cairo_arc(cr, CX, CY, R, ANGLE(90), ANGLE(270));
 	cairo_fill(cr);
-	cairo_set_source_rgba(cr, 1, 1, 1, 1);
+//	cairo_translate (cr, -CX, -CY);
+	cairo_set_source_rgba(cr, yang[0], yang[1], yang[2], 1);
 	cairo_arc(cr, CX, CY, R, ANGLE(-90), ANGLE(90));
 	cairo_fill(cr);
 
-	/* 绘制阴阳线 */
-	cairo_set_source_rgba(cr, 0, 0, 0, 1);
+//	/* 绘制阴阳线 */
+	cairo_set_source_rgba(cr, yin[0], yin[1], yin[2], 1);
 	cairo_arc(cr, CX, CY - R / 2, R / 2, ANGLE(-90), ANGLE(90));
 	cairo_fill(cr);
-	cairo_set_source_rgba(cr, 1, 1, 1, 1);
+	cairo_set_source_rgba(cr, yang[0], yang[1], yang[2], 1);
 	cairo_arc(cr, CX, CY + R / 2, R / 2, ANGLE(90), ANGLE(270));
 	cairo_fill(cr);
 
-	/* 绘制太极眼 */
-	cairo_set_source_rgba(cr, 1, 1, 1, 1);
+//	/* 绘制太极眼 */
+	cairo_set_source_rgba(cr, yang[0], yang[1], yang[2], 1);
 	cairo_arc(cr, CX, CY - R / 2, R / 10, ANGLE(0), ANGLE(360));
 	cairo_fill(cr);
-	cairo_set_source_rgba(cr, 0, 0, 0, 1);
+	cairo_set_source_rgba(cr, yin[0], yin[1], yin[2], 1);
 	cairo_arc(cr, CX, CY + R / 2, R / 10, ANGLE(0), ANGLE(360));
 	cairo_fill(cr);
 
@@ -82,7 +119,7 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	/* Variables for time */
 	//char watch_text[TEXT_BUF_SIZE];
 	int hour24, minute, second;
-	char watch_text[TEXT_BUF_SIZE];
+
 	if (watch_time == NULL)
 		return;
 
@@ -90,23 +127,6 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	watch_time_get_hour24(watch_time, &hour24);
 	watch_time_get_minute(watch_time, &minute);
 	watch_time_get_second(watch_time, &second);
-//	snprintf(watch_text, TEXT_BUF_SIZE, "%02d:%02d:%02d", hour24, minute,
-//			second);
-//	char s[3];
-//	s[0] = watch_text[0];
-//	s[1] = watch_text[1];
-//	s[2] = '\0';
-//	char t[2];
-//	int a = (watch_text[0]-'0') * 10 + (watch_text[1]-'0');
-//	int b = (watch_text[3]-'0') * 10 + (watch_text[4]-'0');
-//	int c = (watch_text[6]-'0') * 10 + (watch_text[7]-'0');
-//	int m = (s[0]-'0')*10+(s[1]-'0');
-//	dlog_print(DLOG_INFO, LOG_TAG, "get time ************ %c %c ,%d",watch_text[0],watch_text[1],m);
-//	dlog_print(DLOG_INFO, LOG_TAG, "get time %c %c %c %c %c %c %c %c", watch_text[0],watch_text[1],
-//			watch_text[2],watch_text[3],watch_text[4],watch_text[5],watch_text[6],watch_text[7]);
-//	dlog_print(DLOG_INFO, LOG_TAG, "get time %s", watch_text);
-//	dlog_print(DLOG_INFO, LOG_TAG, "get time %d,%d,%d", a,b,c);
-//	dlog_print(DLOG_INFO, LOG_TAG, "get time %d,%d,%d", hour24,minute,second);
 
 	/* Set Background color as light blue */
 	//cairo_set_source_rgba(ad->cairo, 0.9, 0.9, 0.9, 0.9);
@@ -115,9 +135,10 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	double width, height, x, y;
 	width = ad->width / 2;
 	height = ad->height / 2;
-//	cairo_translate (ad->cairo, x, y);
+//	cairo_translate (ad->cairo, width, height);
 //	cairo_rotate(ad->cairo,ANGLE(6));
-//	cairo_translate (ad->cairo, -x, -y);
+//	cairo_translate (ad->cairo, -width, -height);
+
 //	cairo_save(ad->cairo);
 //	cairo_restore(ad->cairo);
 //	cairo_paint(ad->cairo);
@@ -149,7 +170,7 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	} else {
 
 		/* Set second hand line color */
-		cairo_set_source_rgba(ad->cairo, 0.92, 0.98, 0.98, 1);
+		cairo_set_source_rgba(ad->cairo, yang[0], yang[1], yang[2], 1);
 
 		/*
 		 * Set line start position
@@ -167,24 +188,24 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 		//inner_x = width - (side / 5 * sin(radian * 6));
 		//inner_y = height - width / 2 - (side / 5 * cos(radian * 6));
 
-		inner_x = width - ((side / 4+2) * sin(radian * 6));
-		inner_y = height - width / 2 - ((side /4 +2) * cos(radian * 6));
+		inner_x = width - ((side / 4 + 6) * sin(radian * 6));
+		inner_y = height - width / 2 - ((side / 4 + 6) * cos(radian * 6));
 
 		cairo_arc(ad->cairo, inner_x, inner_y, 3, ANGLE(0), ANGLE(360));
 		cairo_fill(ad->cairo);
 
-//		cairo_move_to(ad->cairo, inner_x, inner_y);
-//		x = width - (side * sin(radian * 6));
-//		y = height - width / 2 - (side * cos(radian * 6));
-//
-//		/* Draw second hand */
-//		cairo_line_to(ad->cairo, x, y);
-//		cairo_close_path(ad->cairo);
-//
-//		/*
-//		 * Stroke second hand
-//		 * With it's line configuration */
-//		cairo_stroke(ad->cairo);
+		//		cairo_move_to(ad->cairo, inner_x, inner_y);
+		//		x = width - (side * sin(radian * 6));
+		//		y = height - width / 2 - (side * cos(radian * 6));
+		//
+		//		/* Draw second hand */
+		//		cairo_line_to(ad->cairo, x, y);
+		//		cairo_close_path(ad->cairo);
+		//
+		//		/*
+		//		 * Stroke second hand
+		//		 * With it's line configuration */
+		//		cairo_stroke(ad->cairo);
 	}
 
 	/*
@@ -204,7 +225,7 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	cairo_set_line_cap(ad->cairo, line_cap_style);
 
 	/* Set minute hand line color */
-	cairo_set_source_rgba(ad->cairo, 0, 0, 0, 0.9);
+	cairo_set_source_rgba(ad->cairo, yin[0], yin[1], yin[2], 0.9);
 
 	/*
 	 * Set line start position
@@ -218,26 +239,20 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	 */
 	side = width / 2;
 	radian = -minute * (M_PI / 180);
-//	inner_x = width - (side / 5 * sin(radian * 6));
-//	inner_y = height + width / 2 - (side / 5 * cos(radian * 6));
-//	cairo_move_to(ad->cairo, inner_x, inner_y);
-//	x = width - (side * sin(radian * 6));
-//	y = height + width / 2 - (side * cos(radian * 6));
-//
-//	/* Draw minute hand */
-//	cairo_line_to(ad->cairo, x, y);
-//	cairo_close_path(ad->cairo);
-//
-//	/*
-//	 * Stroke minute hand
-//	 * With it's line configuration */
-//	cairo_stroke(ad->cairo);
+	inner_x = width - (side / 5 * sin(radian * 6));
+	inner_y = height + width / 2 - (side / 5 * cos(radian * 6));
+	cairo_move_to(ad->cairo, inner_x, inner_y);
+	x = width - (side / 1.3 * sin(radian * 6));
+	y = height + width / 2 - (side / 1.3 * cos(radian * 6));
 
-	inner_x = width - (side / 4 * sin(radian * 6));
-	inner_y = height + width / 2 - (side / 4 * cos(radian * 6));
+	/* Draw minute hand */
+	cairo_line_to(ad->cairo, x, y);
+	cairo_close_path(ad->cairo);
 
-	cairo_arc(ad->cairo, inner_x, inner_y, 3, ANGLE(0), ANGLE(360));
-	cairo_fill(ad->cairo);
+	/*
+	 * Stroke minute hand
+	 * With it's line configuration */
+	cairo_stroke(ad->cairo);
 
 	/*
 	 * How to draw hour hand
@@ -256,7 +271,7 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	cairo_set_line_cap(ad->cairo, line_cap_style);
 
 	/* Set hour hand line color */
-	cairo_set_source_rgba(ad->cairo, 1, 1, 1, 1.0);
+	cairo_set_source_rgba(ad->cairo, yin[0], yin[1], yin[2], 1.0);
 
 	/*
 	 * Set line start position
@@ -269,24 +284,18 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	 * Using side and radian
 	 */
 	side = width / 2;
-	dlog_print(DLOG_ERROR, LOG_TAG, "current side is %f.", side);
-	radian = -(double)(hour24+(double)minute/60) * (M_PI / 180);
+	//dlog_print(DLOG_ERROR, LOG_TAG, "current side is %f.", side);
+	radian = -(double) (hour24 + (double) minute / 60) * (M_PI / 180);
 
-	inner_x = width - ((side / 6 - 2) * sin(radian * 30));
-	inner_y = height + width / 2 - ((side / 6 - 2) * cos(radian * 30));
+	inner_x = width - (side / 5 * sin(radian * 6));
+	inner_y = height + width / 2 - (side / 5 * cos(radian * 6));
+	cairo_move_to(ad->cairo, inner_x, inner_y);
+	x = width - (side / 1.5 * sin(radian * 6));
+	y = height + width / 2 - (side / 1.5 * cos(radian * 6));
 
-	cairo_arc(ad->cairo, inner_x, inner_y, 3, ANGLE(0), ANGLE(360));
-	cairo_fill(ad->cairo);
-
-//	inner_x = width - (side / 5 * sin(radian * 30));
-//	inner_y = height + width / 2 - (side / 5 * cos(radian * 30));
-//	cairo_move_to(ad->cairo, inner_x, inner_y);
-//	x = width - (side * sin(radian * 30));
-//	y = height + width / 2 - (side * cos(radian * 30));
-//
-//	/* Draw hour hand */
-//	cairo_line_to(ad->cairo, x, y);
-//	cairo_close_path(ad->cairo);
+	/* Draw hour hand */
+	cairo_line_to(ad->cairo, x, y);
+	cairo_close_path(ad->cairo);
 
 	/*
 	 * Stroke hour hand
@@ -299,17 +308,6 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 	/* Display this cairo watch on screen */
 	evas_object_image_data_update_add(ad->img, 0, 0, ad->width, ad->height);
 	evas_object_show(ad->img);
-
-	/* Set label text */
-//	if (!ambient) {
-//		snprintf(watch_text, TEXT_BUF_SIZE, "<align=center>Watch Cairo<br/>%02d:%02d:%02d</align>",
-//			hour24, minute, second);
-//	} else {
-//		snprintf(watch_text, TEXT_BUF_SIZE, "<align=center>Watch Cairo<br/>%02d:%02d</align>",
-//			hour24, minute);
-//	}
-	/* Set label */
-	//elm_object_text_set(ad->label, "");
 }
 
 /*
@@ -326,7 +324,8 @@ static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
 static void create_base_gui(appdata_s *ad) {
 	int ret;
 	watch_time_h watch_time = NULL;
-
+	yin = get_color(yin_color);
+	yang = get_color(yang_color);
 	/*
 	 * Window
 	 * Get the watch application's elm_win.

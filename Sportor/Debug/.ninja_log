@@ -1,3 +1,10 @@
 # ninja log v5
 0	832	0	src/sportor.o	b64620eae2d209c7
 834	1468	0	sportor	bfd175797e21f746
+0	10	0	clean_cov	b3de405e02eb7ca8
+10	17	0	clean_sa	46ab9549445ac981
+17	32	0	clean	d59b6dac04fa9b5d
+4	1008	0	src/sportor.o	38c736bf4649e3d0
+1012	1388	0	sportor	6fd09ab81606c3ea
+4	1010	0	src/sportor.o	b64620eae2d209c7
+1011	1552	0	sportor	6aca6a740ecfaad3

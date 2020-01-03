@@ -3,7 +3,6 @@
 #include "taijiwatch.h"
 #include <cairo.h>
 #include <math.h>
-#include "googlecode.c"
 /* 把角度转换为所对应的弧度 */
 #define ANGLE(ang)	(ang * 3.1415926 / 180.0)
 typedef struct appdata {
@@ -26,7 +25,7 @@ typedef struct appdata {
 double* yin;
 double* yang;
 
-char * yin_color = "#000000";
+char * yin_color = "#0d4261";
 char * yang_color = "#FFFFFF";
 #define TEXT_BUF_SIZE 256
 
@@ -68,11 +67,15 @@ double* get_color(char* in) {
 	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %f,%f,%f",res[0],res[1],res[2]);
 	return res;
 }
+void get_color_fo(){
+	dlog_print(DLOG_ERROR, LOG_TAG, "get color %02x%02x%02x",25,11,69);
+}
 
 int init_taiji(cairo_surface_t* surface, cairo_t* cr, int size) {
 	int CX = size / 2;
 	int CY = size / 2;
 	int R = size / 2;
+	get_color_fo();
 	//time_test();
 	/* 绘制太极边框 */
 //	cairo_set_line_width(cr, 2.0);
