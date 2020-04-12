@@ -1,0 +1,64 @@
+/*
+ * custom_ui.h
+ *
+ *  Created on: Mar 30, 2020
+ *      Author: sinnus
+ */
+#include <app_control.h>
+#include <efl_extension_events.h>
+#include <tizen.h>
+#ifndef CUSTOM_UI_H_
+#define CUSTOM_UI_H_
+
+typedef struct appdata1 {
+	Evas_Object *win;
+	Evas_Object *conform;
+	Evas_Object *label;
+	int width;
+	int height;
+	Evas_Object * label_fps;
+	Evas_Object * increase_img;
+	Evas_Object * decrease_img;
+	Evas_Object * bt_pick;
+	Evas_Object * show_image;
+	Evas_Object * bigger_image;
+	Evas_Object * smaller_image;
+	float scale;
+	int tmp_width;
+	int tmp_height;
+	int tmp_location_x;
+	int tmp_location_y;
+//	char **value;
+} appdata_s1;
+char str_buffer[PATH_MAX];
+
+static int image_increase_width = 50;
+static int image_increase_height = 50;
+static int image_decrease_width = 50;
+static int image_decrease_height = 50;
+
+static int image_decrease_locate_x = 120 - 50 / 2;
+static int image_decrease_locate_y = 280 - 50 / 2;
+static int image_increase_locate_x = 240 - 50 / 2;
+static int image_increase_locate_y = 280 - 50 / 2;
+
+static int label_fps_width = 50;
+static int label_fps_height = 30;
+static int label_fps_location_x = 180 - 50 / 2;
+static int label_fps_location_y = 280 - 30 / 2;
+
+static int bt_pick_width = 130 ;
+static int bt_pick_height = 50;
+static int bt_pick_location_x = 180-130/2;
+static int bt_pick_location_y = 310;
+static int ic_width = 50;
+
+static void image_request_callback(app_control_h request, app_control_h reply,
+		app_control_result_e result, void *user_data);
+static void button_click_cb(void *data, Evas_Object *obj, void *event_info);
+
+void create_new_win(void *data);
+void win_custom_perform_click(void *data,Evas_Object *obj);
+void show_image(void*data,Evas_Object *image, char *image_path, int width, int height, int x, int y,int tag);
+void get_size(char * path,int* w,int *h);
+#endif /* CUSTOM_UI_H_ */

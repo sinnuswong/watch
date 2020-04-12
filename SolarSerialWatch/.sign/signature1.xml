@@ -4,19 +4,23 @@
 <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></SignatureMethod>
 <Reference URI="author-signature.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>A39ZlB8QDy61rR72y33jnFsHtZBFwwVsGUFfh0PelX4=</DigestValue>
+<DigestValue>uNpMa/mHqnv1igxoizu0jfoD21OGXTJvBpV3FBe5TeE=</DigestValue>
 </Reference>
 <Reference URI="bin%2Fsolarserialwatch">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>bfdTSiFhyWuIHVU5dVE/PkTPov9n2sr7cI6xLshKLiE=</DigestValue>
+<DigestValue>D0gdzdx4+EOQdmN/c+qHMD2penf7g1STvqzhy+YBFJ0=</DigestValue>
 </Reference>
-<Reference URI="shared%2Fres%2Fsolarserialwatch.png">
+<Reference URI="shared%2Fres%2Fso.png">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>1d0oEZHqPn+QzNzGIHwj9ODby6x9ggFs9uOsav6jPNs=</DigestValue>
+<DigestValue>LU+VihYYODRNUKgDCcNlYh01gw6Tky2daan0QE9ZH6s=</DigestValue>
+</Reference>
+<Reference URI="shared%2Fres%2Fsolar.png">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>EzlRwBpROJbYsPHQBZpR7xWgu6A0KEqrpdw0b6nh8Ss=</DigestValue>
 </Reference>
 <Reference URI="tizen-manifest.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>DMtbgou4eiypKNdjT6tdcKyF3FggDoKII1ZHTTy/5t4=</DigestValue>
+<DigestValue>/N8cgUp7b1P+p6BhOo0LaWGi2vJCZGXjNn4rNfiAF5g=</DigestValue>
 </Reference>
 <Reference URI="#prop">
 <Transforms>
@@ -27,11 +31,11 @@
 </Reference>
 </SignedInfo>
 <SignatureValue>
-cZGlTHd3QCNqqKx+UJf7heSG+DpS/GLr4CnuyfQ71UNRQyEAk+v+pxafaaD8kgwp6Ovx0YhNgUuc
-DOy3VOj45GCa85vs/LaT4Ysbo9Z2bTBGw+hgOLgN6/Cp1RT2nDNGap/b2lR1lB+MvHwvUjwOoGGL
-Ck66OtfwZWXJD+EBJ4Va2C5X7MpbaIv4Cibwipayc4r86AfPx16qwpXEU6nMKWqPQWoKX8E3TJu6
-NB2ezpgPSQiKrWbPghXFIJwIR2yqYl3nEeSYplrdWsxtZGser/97OehwCMBFqQ8QiPdaP5U+ORxH
-wtI3nKyZ1P5knSDzyyivpICZUB80mFaz5UZe7w==
+aheTTx62nqblVkocv2OvvJSlEcw7Kg031/6p6IPasZxy/7UKSX3/lFsMfTQ35zvN/zSCo6Q0DTA6
+AeD4STgySxJ8B5HCK0Hmw+irHCjtkaFUY4N8G54crOwTaYbatVmSfJBFsjEO3s+gk7FLOduCOrDa
+NVMs8tX/5Hw4IreqP+MBrsDBMPPrtmsqW/7/x9X1p0bICjr+f4G5VIBOAaQlhVtILjuY1Ja7ok05
+ocjJuk+heWTTs1/Kg1zjzU5m6/amNNYWkCyAFeF7zRaw/W4vZ/A8u1YHEGrEWMNlGkQlx33VWpt4
+Fg1/SOP3Z9hlz94aJTNzKK8qC3G9v08knqffcA==
 </SignatureValue>
 <KeyInfo>
 <X509Data>

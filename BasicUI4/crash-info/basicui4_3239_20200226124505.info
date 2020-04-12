@@ -1,0 +1,222 @@
+Executable File Path: /usr/bin/launchpad-loader
+Signal: 6
+      (SIGABRT)
+
+Register Information
+gs  = 0x00000033, fs  = 0x00000000
+es  = 0x0000007b, ds  = 0x0000007b
+edi = 0x00000000, esi = 0x00000008
+ebp = 0xbfb44a70, esp = 0xbfb44a60
+eax = 0x00000000, ebx = 0x00000002
+ecx = 0xbfb44a70, edx = 0x00000000
+eip = 0xb7752a49
+
+Memory information
+MemTotal:   507828 KB
+MemFree:	     9700 KB
+Buffers:	    38540 KB
+Cached:	    223100 KB
+VmPeak:	    133208 KB
+VmSize:	    131048 KB
+VmLck:	          0 KB
+VmPin:	          0 KB
+VmHWM:	      34660 KB
+VmRSS:	      32420 KB
+VmData:	     48776 KB
+VmStk:	        156 KB
+VmExe:	         60 KB
+VmLib:	      47884 KB
+VmPTE:	        100 KB
+VmSwap:	         0 KB
+
+Threads Information
+Threads: 5
+PID = 3239 TID = 3239
+3239 3241 3267 3270 3271 
+
+Maps Information
+        8000e000         8001d000 r-xp /usr/bin/launchpad-loader
+        81d1f000         81f67000 rw-p [heap]
+        b0ee7000         b0eea000 r-xp /usr/lib/libdrm_vigs.so.10.0.0
+        b1802000         b1807000 r-xp /usr/lib/bufmgr/libtbm_vigs.so.0.0.0
+        b1809000         b1817000 r-xp /usr/lib/ecore_evas/engines/wayland/v-1.23/module.so
+        b221a000         b23e1000 r-xp /usr/lib/libCOREGL.so.4.0
+        b3dda000         b3f97000 r-xp /usr/lib/libicuuc.so.63.2
+        b3fa7000         b4286000 r-xp /usr/lib/libicui18n.so.63.2
+        b4290000         b429a000 r-xp /usr/lib/libmmfcommon.so.0.0.0
+        b429c000         b42b9000 r-xp /usr/lib/libmmfile_utils.so.0.0.0
+        b42bb000         b42bd000 r-xp /usr/lib/libcynara-session.so.0.14.24
+        b42bf000         b42cb000 r-xp /usr/lib/libcynara-client.so.0.14.24
+        b42ce000         b42de000 r-xp /usr/lib/libpkgmgr-client.so.0.11.7
+        b42e0000         b42e6000 r-xp /usr/lib/libmmffile.so.0.0.0
+        b42e8000         b4328000 r-xp /usr/lib/libnotification.so.0.5.37
+        b432a000         b432d000 r-xp /usr/lib/libappsvc.so.0.1.0
+        b432f000         b4335000 r-xp /usr/lib/libcontext-shared.so.4.0.3
+        b4337000         b433a000 r-xp /usr/lib/libcontext-client.so.4.0.3
+        b433c000         b434b000 r-xp /usr/lib/libcapi-appfw-package-manager.so.0.8.2
+        b434d000         b4359000 r-xp /usr/lib/libcapi-appfw-app-manager.so.0.8.2
+        b435b000         b4360000 r-xp /usr/lib/libcapi-media-metadata-extractor.so
+        b4362000         b4370000 r-xp /usr/lib/libalarm.so.0.10.2
+        b4372000         b4380000 r-xp /usr/lib/libcontext-sensor-recorder-client-genuine.so.4.0.1
+        b4382000         b438b000 r-xp /usr/lib/libEGL.so.1.4
+        b438d000         b43dd000 r-xp /usr/lib/libGLESv2.so.2.0
+        b43df000         b441f000 r-xp /usr/lib/libefl-extension.so.0.1.0
+        b4421000         b443c000 r-xp /usr/lib/libcapi-system-system-settings.so.0.0.4
+        b443e000         b444c000 r-xp /usr/lib/libcapi-system-sensor.so.0.2.5
+        b444e000         b457c000 r-xp /usr/lib/libcairo.so.2.11400.2
+        b4584000         b4588000 r-xp /usr/lib/evas/modules/engines/wayland_shm/v-1.23/module.so
+        b458f000         b4591000 r-xp /usr/lib/ecore_wl2/engines/dmabuf/v-1.23/module.so
+        b4593000         b4597000 r-xp /opt/usr/globalapps/org.example.basicui4/bin/basicui4
+        b4599000         b459c000 r-xp /usr/lib/elementary/modules/web/none/v-1.23/module.so
+        b459e000         b45aa000 r-xp /usr/lib/elementary/modules/prefs/v-1.23/module.so
+        b45ac000         b45d0000 r-xp /usr/lib/edje/modules/elm/v-1.23/module.so
+        b4fdc000         b4fdd000 r-xp /usr/lib/libtext-client.so.0.0.0
+        b4fe0000         b4ff2000 r-xp /usr/lib/ecore_imf/modules/wayland/v-1.23/module.so
+        b4ff4000         b4ffe000 r-xp /usr/lib/libcapi-appfw-app-control.so.0.11.11
+        b5007000         b5011000 r-xp /usr/lib/ecore_evas/engines/extn/v-1.23/module.so
+        b5013000         b501d000 r-xp /usr/lib/libnss_files-2.24.so
+        b501f000         b502a000 r-xp /usr/lib/libnss_nis-2.24.so
+        b502c000         b5041000 r-xp /usr/lib/libnsl-2.24.so
+        b5045000         b504c000 r-xp /usr/lib/libnss_compat-2.24.so
+        b504e000         b5062000 r-xp /usr/lib/libsensord-shared.so
+        b5065000         b5071000 r-xp /usr/lib/libstorage.so.0.1
+        b5073000         b507c000 r-xp /usr/lib/libxdgmime.so.1.1.0
+        b507e000         b50b1000 r-xp /usr/lib/libsensor-genuine.so.4.0.3
+        b50b3000         b5100000 r-xp /usr/lib/libaul.so.0.20.0
+        b5102000         b510e000 r-xp /usr/lib/libappcore-common.so.1.14.0
+        b5111000         b5116000 r-xp /usr/lib/libcapi-appfw-app-control-uri.so.0.11.11
+        b5118000         b511c000 r-xp /usr/lib/libcapi-appfw-app-common.so.0.8.3
+        b511e000         b5121000 r-xp /usr/lib/libcapi-appfw-application.so.0.5.19
+        b512b000         b5130000 r-xp /usr/lib/libgdbm.so.3.0.0
+        b5132000         b5137000 r-xp /usr/lib/libcapi-system-info.so.0.5.1
+        b513b000         b529a000 r-xp /usr/lib/libxml2.so.2.9.7
+        b52a1000         b52ad000 r-xp /usr/lib/libminizip.so.1.0.0
+        b52af000         b52d1000 r-xp /usr/lib/libpkgmgr_parser.so.0.17.3
+        b52d3000         b52e6000 r-xp /usr/lib/libresolv-2.24.so
+        b52eb000         b52ee000 r-xp /usr/lib/libgmodule-2.0.so.0.5200.2
+        b52f0000         b5339000 r-xp /usr/lib/libblkid.so.1.1.0
+        b533f000         b5343000 r-xp /usr/lib/libiniparser.so.0
+        b5345000         b5370000 r-xp /usr/lib/libpkgmgr-info.so.0.17.3
+        b5372000         b537c000 r-xp /usr/lib/libcynara-client-commons.so.0.14.24
+        b537e000         b53fa000 r-xp /usr/lib/libcynara-commons.so.0.14.24
+        b5400000         b5431000 r-xp /usr/lib/libcynara-storage.so.0.14.24
+        b5434000         b54db000 r-xp /usr/lib/libpixman-1.so.0.32.6
+        b54e2000         b54f3000 r-xp /usr/lib/libdrm.so.2.4.0
+        b54f5000         b5519000 r-xp /usr/lib/libudev.so.1.6.5
+        b551b000         b56cb000 r-xp /usr/lib/libgio-2.0.so.0.5200.2
+        b56d1000         b56da000 r-xp /usr/lib/libcrypt-2.24.so
+        b5703000         b575f000 r-xp /usr/lib/libmount.so.1.1.0
+        b5765000         b5777000 r-xp /usr/lib/libsecurity-privilege-manager.so.1.1.4
+        b5779000         b578b000 r-xp /usr/lib/libcynara-client-async.so.0.14.24
+        b5790000         b57b4000 r-xp /usr/lib/libcynara-admin.so.0.14.24
+        b57b6000         b58d1000 r-xp /usr/lib/libsqlite3.so.0.8.6
+        b58d6000         b58da000 r-xp /usr/lib/libuuid.so.1.3.0
+        b58dc000         b5903000 r-xp /usr/lib/libexpat.so.1.6.9
+        b5906000         b590c000 r-xp /usr/lib/libffi.so.6.0.2
+        b590f000         b5911000 r-xp /usr/lib/libwayland-egl-tizen.so.1.0.0
+        b5913000         b5914000 r-xp /usr/lib/libwayland-egl.so.1.0.0
+        b5916000         b5947000 r-xp /usr/lib/libtbm.so.1.0.0
+        b594a000         b5959000 r-xp /usr/lib/libwayland-tbm-client.so.0.0.0
+        b595b000         b595c000 r-xp /usr/lib/libtizen-launch-client.so.0.0.0
+        b5960000         b5963000 r-xp /usr/lib/libtizen-extension-client.so.0.0.0
+        b5966000         b596a000 r-xp /usr/lib/libwayland-cursor.so.0.0.0
+        b596f000         b59af000 r-xp /usr/lib/libxkbcommon.so.0.0.0
+        b59b2000         b59c3000 r-xp /usr/lib/libwayland-server.so.0.1.0
+        b59c6000         b59d2000 r-xp /usr/lib/libethumb.so.1.23.99
+        b59d4000         b59de000 r-xp /usr/lib/libecore_ipc.so.1.23.99
+        b59e0000         b59f0000 r-xp /usr/lib/libeeze.so.1.23.99
+        b59f2000         b59f8000 r-xp /usr/lib/libecore_input_evas.so.1.23.99
+        b59fa000         b5a11000 r-xp /usr/lib/libz.so.1.2.11
+        b5a13000         b5a9a000 r-xp /usr/lib/libssl.so.1.1
+        b5aa5000         b5b1c000 r-xp /usr/lib/libpcre.so.1.2.11
+        b5b1e000         b5b47000 r-xp /usr/lib/liblzma.so.5.2.4
+        b5b49000         b5b9b000 r-xp /usr/lib/libgobject-2.0.so.0.5200.2
+        b5b9d000         b5bc2000 r-xp /usr/lib/libjson-glib-1.0.so.0.400.2
+        b5bc4000         b5bd0000 r-xp /usr/lib/libcapi-base-common.so.0.4.54
+        b5bd4000         b5e0d000 r-xp /usr/lib/libcrypto.so.1.1
+        b5e2a000         b5e69000 r-xp /usr/lib/libklay.so.0.0.1
+        b5e6b000         b5fdb000 r-xp /usr/lib/libstdc++.so.6.0.22
+        b5fe5000         b5fec000 r-xp /usr/lib/librt-2.24.so
+        b5fee000         b5ffe000 r-xp /usr/lib/libprocps.so.7.1.0
+        b6013000         b601a000 r-xp /usr/lib/libsmack.so.1.3.1
+        b601f000         b60f2000 r-xp /usr/lib/libsecurity-manager-commons.so.1.0.2
+        b60f6000         b610f000 r-xp /usr/lib/libgcc_s.so.1
+        b6111000         b6145000 r-xp /usr/lib/libpng16.so.16.36.0
+        b6147000         b61f0000 r-xp /usr/lib/libjpeg.so.8.2.2
+        b61f3000         b624e000 r-xp /usr/lib/librlottie.so.0.0.1
+        b6251000         b635f000 r-xp /usr/lib/libharfbuzz.so.0.20400.0
+        b6364000         b6368000 r-xp /usr/lib/libhyphen.so.0.3.0
+        b636a000         b6385000 r-xp /usr/lib/libfribidi.so.0.4.0
+        b6387000         b63ca000 r-xp /usr/lib/libfontconfig.so.1.12.0
+        b63cd000         b646c000 r-xp /usr/lib/libfreetype.so.6.16.1
+        b6472000         b64a3000 r-xp /usr/lib/libector.so.1.23.99
+        b64af000         b64de000 r-xp /usr/lib/liblua.so.5.1
+        b64e1000         b64f1000 r-xp /usr/lib/libecore_audio.so.1.23.99
+        b64f3000         b64fe000 r-xp /usr/lib/libembryo.so.1.23.99
+        b6500000         b6502000 r-xp /usr/lib/libecore_imf_evas.so.1.23.99
+        b6504000         b6512000 r-xp /usr/lib/libwayland-client.so.0.3.0
+        b6515000         b656f000 r-xp /usr/lib/libm-2.24.so
+        b6571000         b6574000 r-xp /usr/lib/libttrace.so.1.1
+        b6576000         b6597000 r-xp /usr/lib/libeio.so.1.23.99
+        b6599000         b65b3000 r-xp /usr/lib/libemotion.so.1.23.99
+        b65b5000         b65e6000 r-xp /usr/lib/libecore_wl2.so.1.23.99
+        b65e9000         b65f2000 r-xp /usr/lib/libethumb_client.so.1.23.99
+        b65f7000         b65fa000 r-xp /usr/lib/libefreet_trash.so.1.23.99
+        b65fc000         b6601000 r-xp /usr/lib/libefreet_mime.so.1.23.99
+        b6603000         b6627000 r-xp /usr/lib/libefreet.so.1.23.99
+        b662a000         b6669000 r-xp /usr/lib/libeldbus.so.1.23.99
+        b666b000         b670f000 r-xp /usr/lib/libecore_con.so.1.23.99
+        b6714000         b671e000 r-xp /usr/lib/libecore_imf.so.1.23.99
+        b6720000         b6733000 r-xp /usr/lib/libecore_input.so.1.23.99
+        b6735000         b673d000 r-xp /usr/lib/libecore_file.so.1.23.99
+        b673f000         b676d000 r-xp /usr/lib/libecore_evas.so.1.23.99
+        b676f000         b6793000 r-xp /usr/lib/libeo.so.1.23.99
+        b6796000         b680b000 r-xp /usr/lib/libefl.so.1.23.99
+        b6813000         b6840000 r-xp /usr/lib/libemile.so.1.23.99
+        b684b000         b6875000 r-xp /usr/lib/libeet.so.1.23.99
+        b687f000         b6915000 r-xp /usr/lib/libeina.so.1.23.99
+        b6919000         b6abf000 r-xp /usr/lib/libc-2.24.so
+        b6ac6000         b6aca000 r-xp /usr/lib/libcap.so.2.24
+        b6acc000         b6b23000 r-xp /usr/lib/libdbus-1.so.3.14.6
+        b6b26000         b6c42000 r-xp /usr/lib/libglib-2.0.so.0.5200.2
+        b6c44000         b6cdf000 r-xp /usr/lib/libsystemd.so.0.16.0
+        b6ce2000         b6cf2000 r-xp /usr/lib/libbuxton2.so.1.5.7
+        b6cf4000         b6cfd000 r-xp /usr/lib/libvconf.so.0.3.1
+        b6cff000         b6d09000 r-xp /usr/lib/libdlog.so.0.0.0
+        b6d13000         b6d1d000 r-xp /usr/lib/libbundle.so.0.4.1
+        b6d1f000         b6d3c000 r-xp /usr/lib/libtanchor.so.2.1.2
+        b6d3e000         b6d46000 r-xp /usr/lib/libtzplatform-config-2.0.so.2.0.0
+        b6d4d000         b6d80000 r-xp /usr/lib/libsecurity-manager-client.so.3.0.0
+        b6d83000         b6e04000 r-xp /usr/lib/libecore.so.1.23.99
+        b6e09000         b70ab000 r-xp /usr/lib/libevas.so.1.23.99
+        b70d5000         b71da000 r-xp /usr/lib/libedje.so.1.23.99
+        b71df000         b76f9000 r-xp /usr/lib/libelementary.so.1.23.100
+        b7719000         b7732000 r-xp /usr/lib/libpthread-2.24.so
+        b7736000         b7739000 r-xp /usr/lib/libdl-2.24.so
+        b773e000         b7745000 r-xp /usr/lib/libappcore-ui.so.1.14.0
+        b7748000         b774c000 r-xp /usr/lib/libappcore-efl.so.1.14.0
+        b7753000         b7776000 r-xp /usr/lib/ld-2.24.so
+        bfb23000         bfb49000 rw-p [stack]
+End of Maps Information
+
+Callstack Information (PID:3239)
+Call Stack Count: 18
+ 0: __kernel_vsyscall + 0x9 (0xb7752a49)
+ 1: gsignal + 0xd6 (0xb6945c36) [/usr/lib/libc-2.24.so] + 0x2cc36
+ 2: abort + 0x16d (0xb69474ad) [/usr/lib/libc-2.24.so] + 0x2e4ad
+ 3: (0xb6985650) [/usr/lib/libc-2.24.so] + 0x6c650
+ 4: (0xb698d1f0) [/usr/lib/libc-2.24.so] + 0x741f0
+ 5: (0xb698d9f7) [/usr/lib/libc-2.24.so] + 0x749f7
+ 6: app_terminate + 0x98 (0xb45959a8) [/opt/usr/globalapps/org.example.basicui4/bin/basicui4] + 0x29a8
+ 7: (0xb511f1dc) [/usr/lib/libcapi-appfw-application.so.0.5.19] + 0x11dc
+ 8: appcore_base_fini + 0x59 (0xb5108389) [/usr/lib/libappcore-common.so.1.14.0] + 0x6389
+ 9: appcore_ui_base_fini + 0x13f (0xb7742aaf) [/usr/lib/libappcore-ui.so.1.14.0] + 0x4aaf
+10: appcore_efl_base_fini + 0x17 (0xb774a687) [/usr/lib/libappcore-efl.so.1.14.0] + 0x2687
+11: ui_app_main + 0x88 (0xb511f5e8) [/usr/lib/libcapi-appfw-application.so.0.5.19] + 0x15e8
+12: main + 0x30b (0xb459584b) [/opt/usr/globalapps/org.example.basicui4/bin/basicui4] + 0x284b
+13: _start + 0x49c (0x80010f2c) [/usr/bin/launchpad-loader] + 0x2f2c
+14: launchpad_loader_main + 0x62c (0x80017cfc) [/usr/bin/launchpad-loader] + 0x9cfc
+15: _start + 0x13ef (0x80011e7f) [/usr/bin/launchpad-loader] + 0x3e7f
+16: __libc_start_main + 0x108 (0xb69309b8) [/usr/lib/libc-2.24.so] + 0x179b8
+17: _start + 0x31 (0x80010ac1) [/usr/bin/launchpad-loader] + 0x2ac1
+End of Call Stack

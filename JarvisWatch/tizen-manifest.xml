@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="2.3.2" package="org.eros.jarviswatch" version="1.0.1">
+    <profile name="wearable"/>
+    <watch-application ambient-support="true" appid="org.eros.jarviswatch" exec="jarviswatch">
+        <label>jarviswatch</label>
+        <icon>jarvis.png</icon>
+    </watch-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/alarm.set</privilege>
+        <privilege>http://tizen.org/privilege/power</privilege>
+    </privileges>
+</manifest>

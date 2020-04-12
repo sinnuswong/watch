@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="5.5" package="org.example.basicui4" version="1.0.0">
+	<profile name="wearable" />
+	<ui-application appid="org.example.basicui4" exec="basicui4" type="capp" multiple="false" taskmanage="true" nodisplay="false">
+		<icon>basicui4.png</icon>
+		<label>basicui4</label>
+	</ui-application>
+</manifest>

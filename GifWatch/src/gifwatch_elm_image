@@ -1,0 +1,303 @@
+#include <tizen.h>
+#include "gifwatch.h"
+#include <math.h>
+#include <app_control.h>
+#include "util.h"
+#include "custom_ui.h"
+#include <media_content.h>
+double* yin;
+double* yang;
+char watch_text[TEXT_BUF_SIZE];
+char **p;
+char * yin_color = "#383838"; //"#0d4261";
+char * yang_color = "#FFFFFF";
+char image_path[PATH_MAX];
+int count = 60;
+
+/* 把角度转换为所对应的弧度 */
+static void update_watch(appdata_s *ad, watch_time_h watch_time, int ambient) {
+	int hour24, minute, second;
+	/* Get current time */
+	watch_time_get_hour24(watch_time, &hour24);
+	watch_time_get_minute(watch_time, &minute);
+	watch_time_get_second(watch_time, &second);
+	ad->second = second;
+	if (hour24 == ad->hour && minute == ad->minute) {
+	} else {	//&& second != ad->second
+		ad->hour = hour24;
+		ad->minute = minute;
+		snprintf(watch_text, TEXT_BUF_SIZE, "<align=center>%02d:%02d</align>",
+				hour24, minute);
+		/* Set label */
+		elm_object_text_set(ad->label_time, watch_text);
+	}
+}
+void addImage(void *a, char *image_path, int width, int height, int x, int y) {
+	//324,128
+	appdata_s *ad = a;
+	if (ad->img) {
+		//evas_object_del(ad->img);
+		if (ad->timer) {
+			ecore_timer_del(ad->timer);
+		}
+//		ad->timer = ecore_timer_add(ad->interval, animate_cb, ad);
+	} else
+		ad->img = elm_image_add(ad->win);
+	Evas_Object* image = ad->img;
+	elm_image_no_scale_set(image, EINA_TRUE);
+	elm_image_resizable_set(image, EINA_TRUE, EINA_TRUE);
+	/* Tell the image to keep original aspect ratio */
+	elm_image_aspect_fixed_set(image, EINA_TRUE);
+	/* Then let the image fill the entire object */
+	elm_image_fill_outside_set(image, EINA_TRUE);
+	elm_image_smooth_set(image, EINA_TRUE);
+	elm_image_preload_disabled_set(image, EINA_TRUE);
+	elm_image_file_set(image, image_path, NULL);
+	if (elm_image_animated_available_get(image)) {
+		elm_image_animated_set(image, EINA_TRUE);
+		elm_image_animated_play_set(image, EINA_TRUE);
+	}
+//	evas_object_image_file_set(ad->img, image_path, NULL);
+	int w, h;
+	elm_image_object_size_get(image, &w, &h);
+	evas_object_image_load_size_get(ad->img, &w, &h);
+	evas_object_resize(image, width, height);
+	dlog_print(DLOG_ERROR, LOG_TAG, "image load size is %d %d", w, h);
+	evas_object_show(ad->img);
+	evas_object_move(ad->img, x - width / 2, y - height / 2);
+}
+
+void win_double_click_cb(void *data, Evas_Object *obj, void *event_info) {
+
+	appdata_s *ad = data;
+	double duration = ecore_time_unix_get() - ad->last_up_million;
+	if (duration > 0.85) {
+		ad->last_up_million = ecore_time_unix_get();
+	} else {
+		create_new_win(data);
+		ad->last_up_million = 0;
+	}
+}
+static void create_base_gui(appdata_s *ad) {
+	int ret;
+	yin = get_color(yin_color);
+	yang = get_color(yang_color);
+	elm_config_accel_preference_override_set(EINA_TRUE);
+	ret = watch_app_get_elm_win(&ad->win);
+	if (ret != APP_ERROR_NONE) {
+		dlog_print(DLOG_ERROR, LOG_TAG, "failed to get window. err = %d", ret);
+		return;
+	}
+	evas_object_resize(ad->win, ad->width, ad->height);
+
+	ad->res_path = app_get_resource_path();
+	if (ad->res_path) {
+		snprintf(image_path, (int) PATH_MAX, "%s%s", ad->res_path, "nike.gif");
+	}
+
+	//"/opt/usr/home/owner/media/Images/aeb61f8d41746a601440a97b6aa4364b.gif"
+	addImage(ad, image_path, 324, 128, 180, 180);
+
+	/* Create Label */ //should custom it size color,location change.
+	ad->label_time = elm_label_add(ad->win);
+	evas_object_resize(ad->label_time, ad->label_time_width,
+			ad->label_time_height);
+	evas_object_move(ad->label_time, ad->label_time_location_x,
+			ad->label_time_location_y);
+	evas_object_show(ad->label_time);
+
+	ad->label_date = elm_label_add(ad->win);
+	evas_object_resize(ad->label_date, ad->label_date_width,
+			ad->label_date_height);
+	evas_object_move(ad->label_date, ad->label_date_location_x,
+			ad->label_date_location_y);
+	evas_object_show(ad->label_date);
+
+	ad->watch_time = (watch_time_h*) malloc(sizeof(watch_time_h));
+	ret = watch_time_get_current_time(ad->watch_time);
+	if (ret != APP_ERROR_NONE)
+		dlog_print(DLOG_ERROR, LOG_TAG, "failed to get current time. err = %d",
+				ret);
+	ad->hour = -1;
+	ad->minute = -1;
+
+	ad->ad1 = (appdata_s1*) malloc(sizeof(appdata_s1));
+	appdata_s1* ad1 = ad->ad1;
+	ad1->width = ad->width;
+	ad1->height = ad->height;
+//	ad->handler = ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_UP, event_up,
+//			ad);
+
+	evas_object_smart_callback_add(ad->img, "clicked", win_double_click_cb, ad);
+	/* Show window after base gui is set up */
+	evas_object_show(ad->win);
+}
+static void app_data_init(void *data) {
+	appdata_s *ad = data;
+	ad->label_time_width = 90;
+	ad->label_time_height = 30;
+	ad->label_time_location_x = 160;
+	ad->label_time_location_y = 90;
+
+	ad->label_date_width = 105;
+	ad->label_date_height = 30;
+	ad->label_date_location_x = 160;
+	ad->label_date_location_y = 120;
+	ad->fps = 16;
+	ad->interval = 0.06;
+}
+static bool app_create(int width, int height, void *data) {
+	appdata_s *ad = data;
+	ad->width = width;
+	ad->height = height;
+	app_data_init(data);
+	create_base_gui(ad);
+	return true;
+}
+
+static void app_control(app_control_h app_control, void *data) {
+	/* Handle the launch request. */
+}
+
+static void app_pause(void *data) {
+	/* Take necessary actions when application becomes invisible. */
+	dlog_print(DLOG_ERROR, LOG_TAG, "app_pause ");
+	appdata_s *ad = data;
+	if (ad->key_back_tag == 1) {
+		dlog_print(DLOG_ERROR, LOG_TAG, "app_pause ad->key_back_tag %d",
+				ad->key_back_tag);
+//		ecore_timer_del(ad->timer);
+		dlog_print(DLOG_ERROR, LOG_TAG, "app_pause ad->interval %f",
+				ad->interval);
+//		ad->timer = ecore_timer_add(ad->interval, animate_cb, ad);
+		ad->key_back_tag = 0;
+	} else if (ad->timer) {
+		dlog_print(DLOG_ERROR, LOG_TAG, "app_pause ad->key_back_tag %d",
+				ad->key_back_tag);
+//		ecore_timer_del(ad->timer);
+//		evas_object_image_animated_frame_set(ad->img, 1);
+	}
+
+}
+
+static void app_resume(void *data) {
+	/* Take necessary actions when application becomes visible. */
+	dlog_print(DLOG_ERROR, LOG_TAG, "app_resume ");
+	appdata_s *ad = data;
+	ad->resume = 1;
+	if (ad->timer) {
+//		ecore_timer_del(ad->timer);
+	}
+//	ad->timer = ecore_timer_add(ad->interval, animate_cb, ad);
+	//evas_object_show(ad->img);
+	int ret = watch_time_get_current_time(ad->watch_time);
+	if (ret != APP_ERROR_NONE)
+		dlog_print(DLOG_ERROR, LOG_TAG, "failed to get current time. err = %d",
+				ret);
+
+	int year, month, day;
+	watch_time_get_year(*(ad->watch_time), &year);
+	watch_time_get_month(*(ad->watch_time), &month);
+	watch_time_get_day(*(ad->watch_time), &day);
+	watch_time_get_day_of_week(*(ad->watch_time), &(ad->day_of_week));
+	if (year != ad->year || month != ad->month || day != ad->day) {
+		ad->year = year;
+		ad->month = month;
+		ad->day = day;
+		snprintf(watch_text, TEXT_BUF_SIZE,
+				"<align=center><font=Sans:style=Regular font_size=19>%d/%d %s</font></align>",
+				ad->month, ad->day, week_cn[ad->day_of_week - 1]);
+		elm_object_text_set(ad->label_date, watch_text);
+		//星期日
+	}
+//	update_watch(ad, *(ad->watch_time), ad->ambient_mode);
+}
+
+/*
+ * @brief This callback function is called once after the main loop of the application exits
+ */
+static void app_terminate(void *data) {
+	/* Release all resources. */
+	appdata_s *ad = data;
+	cairo_surface_destroy(ad->surface);
+	cairo_destroy(ad->cairo);
+	watch_time_delete(*(ad->watch_time));
+}
+
+/*
+ * @brief This function will be called at each second.
+ */
+static void app_time_tick(watch_time_h watch_time, void *data) {
+	/* Called at each second while your app is visible. Update watch UI. */
+	appdata_s *ad = data;
+	update_watch(ad, watch_time, 0);
+}
+
+/*
+ * @brief This function will be called at each minute.
+ */
+static void app_ambient_tick(watch_time_h watch_time, void *data) {
+	/* Called at each minute while the device is in ambient mode. Update watch UI. */
+	appdata_s *ad = data;
+	update_watch(ad, watch_time, 1);
+}
+
+/*
+ * @brief This function will be called when the ambient mode is changed
+ */
+static void app_ambient_changed(bool ambient_mode, void *data) {
+	appdata_s *ad = data;
+	ad->ambient_mode = ambient_mode;
+}
+
+/*
+ * @brief This function will be called when the language is changed
+ */
+static void watch_app_lang_changed(app_event_info_h event_info, void *user_data) {
+	/*APP_EVENT_LANGUAGE_CHANGED*/
+	char *locale = NULL;
+	app_event_get_language(event_info, &locale);
+	elm_language_set(locale);
+	free(locale);
+	return;
+}
+
+/*
+ * @brief This function will be called when the region is changed
+ */
+static void watch_app_region_changed(app_event_info_h event_info,
+		void *user_data) {
+	/*APP_EVENT_REGION_FORMAT_CHANGED*/
+}
+
+/*
+ * @brief Main function of the application
+ */
+int main(int argc, char *argv[]) {
+	appdata_s ad = { 0, };
+	int ret = 0;
+
+	watch_app_lifecycle_callback_s event_callback = { 0, };
+	app_event_handler_h handlers[5] = { NULL, };
+
+	event_callback.create = app_create;
+	event_callback.terminate = app_terminate;
+	event_callback.pause = app_pause;
+	event_callback.resume = app_resume;
+	event_callback.app_control = app_control;
+	event_callback.time_tick = app_time_tick;
+	event_callback.ambient_tick = app_ambient_tick;
+	event_callback.ambient_changed = app_ambient_changed;
+
+	watch_app_add_event_handler(&handlers[APP_EVENT_LANGUAGE_CHANGED],
+			APP_EVENT_LANGUAGE_CHANGED, watch_app_lang_changed, &ad);
+	watch_app_add_event_handler(&handlers[APP_EVENT_REGION_FORMAT_CHANGED],
+			APP_EVENT_REGION_FORMAT_CHANGED, watch_app_region_changed, &ad);
+
+	ret = watch_app_main(argc, argv, &event_callback, &ad);
+	if (ret != APP_ERROR_NONE)
+		dlog_print(DLOG_ERROR, LOG_TAG, "watch_app_main() is failed. err = %d",
+				ret);
+
+	return ret;
+}

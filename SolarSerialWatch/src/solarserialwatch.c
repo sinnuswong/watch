@@ -1,19 +1,13 @@
+
+/*earth in center,地球月球和月球卫星*/
 #include <tizen.h>
 #include "solarserialwatch.h"
-/*newest sun in center and earth rotate and moon*/
 #include <cairo.h>
 #include <math.h>
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <unistd.h>
-#include <iconv.h>
-#define OUTLEN 255
+//#include "googlecode.c"
 /* 把角度转换为所对应的弧度 */
 #define ANGLE(ang)	(ang * 3.1415926 / 180.0)
-double interval = 0.1;
-#define TEXT_BUF_SIZE 20
+
 typedef struct appdata {
 	/* Variables for basic UI contents */
 	Evas_Object *win;
@@ -30,36 +24,30 @@ typedef struct appdata {
 	long long start_interval;
 	int hour24, minute, second;
 	cairo_pattern_t* sun_pattern;
-	int cur_position_x;
-	int cur_position_y;
-
-	unsigned char isDown;
-	int prex, prey;
-	int dx, dy;
-	int downX, downY;
-	double downStamp;
-	double avg_speedX;
-	double avg_speedY;
-	Ecore_Event_Handler * handler;
 	cairo_pattern_t* earth_pattern;
 	cairo_pattern_t* moon_pattern;
 	bool ambient_mode;
-	double earth_center_x, earth_center_y;
-	double earth_side, earth_radian, moon_radian, moon_center_x, moon_center_y;
-
-	char *watch_text;
-	cairo_text_extents_t *extents;
-
-	double* moon_color;
-	double* earth_color;
-	double* sun_color;
-
 } appdata_s;
-char * moon_color_s = "#FFFFA0";
-char * sun_color_s = "#FFFFA0";
-char * earth_color_s = "#4169E1";
+double* moon;
+double* earth;
+double* sun;
+double* mar;
 
-static double getNumber(char a) {
+double interval = 0.1;
+char * moon_color = "#FFFFA0";
+char * sun_color = "#FFFFA0	";
+char * earth_color = "#4169E1";
+char * mar_color= "#E46908";
+double * sun_point;
+double * moon_point;
+
+#define TEXT_BUF_SIZE 256
+double ** earth_locations;
+
+/* 把角度转换为所对应的弧度 */
+#define ANGLE(ang)	(ang * 3.1415926 / 180.0)
+
+double getNumber(char a) {
 	double res = 0;
 	if (a >= 'A' && a <= 'F')
 		res = (a - 'A' + 10);
@@ -67,7 +55,7 @@ static double getNumber(char a) {
 		res = (a - '0');
 	return res;
 }
-static double* get_color(char* in) {
+double* get_color(char* in) {
 	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %s",in);
 	//int temp = getNumber()*16+(in[2]-'A'+10);
 	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %d",(in[1]));
@@ -87,228 +75,145 @@ static double* get_color(char* in) {
 	//dlog_print(DLOG_ERROR, LOG_TAG, "get color %f,%f,%f",res[0],res[1],res[2]);
 	return res;
 }
-static long long _get_current_ms_time(void) {
-	return (long long) (ecore_time_unix_get() * 1000);
-}
 
-static void free_data(appdata_s *ad) {
-	ecore_timer_del(ad->timer);
-	cairo_surface_destroy(ad->surface);
-	cairo_destroy(ad->cairo);
-
-	if (ad->sun_pattern) {
-		cairo_pattern_destroy(ad->sun_pattern);
-	}
-	if (ad->earth_pattern)
-		cairo_pattern_destroy(ad->earth_pattern);
-	if (ad->moon_pattern)
-		cairo_pattern_destroy(ad->moon_pattern);
-
-	free(ad->moon_color);
-	free(ad->earth_color);
-	free(ad->sun_color);
-
-	free(moon_color_s);
-	free(sun_color_s);
-	free(earth_color_s);
-	free(ad->watch_text);
-	free(ad->extents);
-}
-int code_convert(char *from_charset,char *to_charset,char *inbuf,int inlen,char *outbuf,int outlen)
-{
-    iconv_t cd;
-    int rc;
-    char **pin = &inbuf;
-    char **pout = &outbuf;
-
-    cd = iconv_open(to_charset,from_charset);
-    if (cd==0) return -1;
-    memset(outbuf,0,outlen);
-    if (iconv(cd,pin,&inlen,pout,&outlen)==-1) return -1;
-    iconv_close(cd);
-    return 0;
-}
-/*UNICODE码转为GB2312码*/
-int u2g(char *inbuf,int inlen,char *outbuf,int outlen)
-{
-    return code_convert("utf-8","gb2312",inbuf,inlen,outbuf,outlen);
-}
-/*GB2312码转为UNICODE码*/
-int g2u(char *inbuf,size_t inlen,char *outbuf,size_t outlen)
-{
-    return code_convert("gb2312","utf-8",inbuf,inlen,outbuf,outlen);
+double * get_next_earth_position(int hour24) {
+	return earth_locations[hour24 - 1];
 }
 int init_solar_system(appdata_s *ad) {
-	ad->sun_color = get_color(sun_color_s);
-	ad->moon_color = get_color(moon_color_s);
-	ad->earth_color = get_color(earth_color_s);
+	sun = get_color(sun_color);
+	moon = get_color(moon_color);
+	earth = get_color(earth_color);
+	mar = get_color(mar_color);
 	/**compute the locations*/
 	/**create parttern for sun erath and moon.*/
 	int cx, cy, size;
 	size = ad->width / 2;
 	cx = size;
 	cy = size;
-	int r = size;
-	ad->cur_position_x = cx - 50;
-	ad->cur_position_y = cy;
-	ad->sun_pattern = cairo_pattern_create_radial(ad->cur_position_x,
-			ad->cur_position_y, 0, ad->cur_position_x, ad->cur_position_y,
+
+	ad->sun_pattern = cairo_pattern_create_radial(-20, -20, 0, -20, -20,
+			size);
+	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.05, sun[0] - 0.1,
+			sun[1] - 0.1, sun[2] - 0.1,1);
+	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.5, sun[0], sun[1],
+			sun[2],1);
+	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.9, sun[0], sun[1],
+			sun[2],0);
+
+	//actually is mar
+	ad->earth_pattern = cairo_pattern_create_radial(cx, cy, 0, cx, cy,
 			size / 4);
-	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.05,
-			ad->sun_color[0] - 0.1, ad->sun_color[1] - 0.1,
-			ad->sun_color[2] - 0.1, 1);
-	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.5, ad->sun_color[0],
-			ad->sun_color[1], ad->sun_color[2], 1);
-	cairo_pattern_add_color_stop_rgba(ad->sun_pattern, 0.9, ad->sun_color[0],
-			ad->sun_color[1], ad->sun_color[2], 0);
-	//cairo_pattern_destroy(pat3);
+	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.05, mar[0] - 0.1,
+			mar[1] - 0.1, mar[2] - 0.1,1.0);
+	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.5, mar[0], mar[1],
+			mar[2],1.0);
+	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.9, mar[0], mar[1],
+				mar[2],0);
 
-	/* 绘制背景黑 和 太阳 */
-	cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-	cairo_arc(ad->cairo, cx, cy, r, ANGLE(0), ANGLE(360));
-	cairo_fill(ad->cairo);
-	//draw sun in center
-	cx = ad->cur_position_x;
-	cy = ad->cur_position_y;
-	cairo_arc(ad->cairo, cx, cy, r / 4, ANGLE(0), ANGLE(360));
-	cairo_set_source(ad->cairo, ad->sun_pattern);
-	cairo_fill(ad->cairo);
 
-	//init text size and width and length
-	ad->watch_text = (char*) malloc(TEXT_BUF_SIZE * sizeof(char));
-	ad->extents = (cairo_text_extents_t *) malloc(sizeof(cairo_text_extents_t));
-	cairo_select_font_face(ad->cairo, "Courier", CAIRO_FONT_SLANT_NORMAL,
-			CAIRO_FONT_WEIGHT_NORMAL);
-	cairo_set_font_size(ad->cairo, 36);
-	 //   s sevas_object_move
-
-	snprintf(ad->watch_text, TEXT_BUF_SIZE, "%02d:%02d", 99, 99);
-	cairo_text_extents(ad->cairo, ad->watch_text, ad->extents);
 	return 0;
 }
 
-static void update_solar_system(appdata_s *ad, int hour24, int minute,
-		int second, int msecond) {
+void update_solar_system(appdata_s *ad, int hour24, int minute, int second,
+		int msecond) {
 	int size = ad->width;
 	int cx = size / 2;
 	int cy = size / 2;
 	int r = size / 2;
 
-	//clear earth history
+	/* 绘制背景黑 */
 	cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-	cairo_arc(ad->cairo, ad->earth_center_x, ad->earth_center_y, r / 12 + 2,
-			ANGLE(0), ANGLE(360));
+	cairo_arc(ad->cairo, cx, cy, r, ANGLE(0), ANGLE(360));
 	cairo_fill(ad->cairo);
 
-	//clear moon history
-	cairo_set_source_rgba(ad->cairo, 0, 0, 0, 1);
-	cairo_arc(ad->cairo, ad->moon_center_x, ad->moon_center_y, 4, ANGLE(0),
-			ANGLE(360));
+	//draw sun in edge
+	cairo_arc(ad->cairo, -20, -20, r, ANGLE(0), ANGLE(120));
+	cairo_set_source(ad->cairo, ad->sun_pattern);
 	cairo_fill(ad->cairo);
 
-	//remove history.and set black
-	cairo_set_source_rgba(ad->cairo, 0,0,0, 1);
-		cairo_rectangle(ad->cairo,256,
-				165 ,110,30);
-		cairo_fill(ad->cairo);
-
-	//draw earth
-	ad->earth_side = r / 1.7;
-	ad->earth_radian = -(second * 1000 + msecond) * (M_PI / 180);
-	double a = 22 * M_PI / 180;
-	ad->earth_center_x = ad->cur_position_x + 60
-			- (ad->earth_side * 1.5 * sin(ad->earth_radian * 0.006) * cos(a)
-					+ ad->earth_side / 1.5 * cos(ad->earth_radian * 0.006)
-							* sin(a));
-	ad->earth_center_y = ad->cur_position_y - 20
-			- (ad->earth_side / 1.5 * cos(ad->earth_radian * 0.006) * cos(a)
-					- ad->earth_side * 1.5 * sin(ad->earth_radian * 0.006)
-							* sin(a));
-
-	int earth_r = r/10;
-
-	ad->earth_pattern = cairo_pattern_create_radial(ad->earth_center_x,
-			ad->earth_center_y, 0, ad->earth_center_x, ad->earth_center_y,
-			earth_r);
-	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.05,
-			ad->earth_color[0] - 0.1, ad->earth_color[1] - 0.1,
-			ad->earth_color[2] - 0.1, 1);
-	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.5,
-			ad->earth_color[0], ad->earth_color[1], ad->earth_color[2], 1);
-	cairo_pattern_add_color_stop_rgba(ad->earth_pattern, 0.9,
-			ad->earth_color[0], ad->earth_color[1], ad->earth_color[2], 0);
-	cairo_arc(ad->cairo, ad->earth_center_x, ad->earth_center_y, earth_r,
-			ANGLE(0), ANGLE(360));
+	//draw earth in center
+	cairo_arc(ad->cairo, cx, cy, r / 4, ANGLE(0), ANGLE(360));
 	cairo_set_source(ad->cairo, ad->earth_pattern);
 	cairo_fill(ad->cairo);
-	cairo_pattern_destroy(ad->earth_pattern);
 
-	/****draw moon***/
-	ad->moon_radian = -(second * 1000 + msecond) * (M_PI / 180);
-	ad->moon_center_x = ad->earth_center_x
-			- (16 * sin(ad->moon_radian * 0.024));
-	ad->moon_center_y = ad->earth_center_y
-			- (16 * cos(ad->moon_radian * 0.024));
-	cairo_set_source_rgba(ad->cairo, ad->moon_color[0], ad->moon_color[1],
-			ad->moon_color[2], 1);
-	cairo_arc(ad->cairo, ad->moon_center_x, ad->moon_center_y, 2, ANGLE(0),
-			ANGLE(360));
+	double earth_side, earth_radian;
+	double earth_center_x, earth_center_y;
+
+	earth_side = r / 1.7;
+	earth_radian = -(second * 1000 + msecond) * (M_PI / 180);
+	double a = 22 * M_PI / 180;
+	earth_center_x = cx + 20
+			- (earth_side * 1.5 * sin(earth_radian * 0.024) * cos(a)
+					+ earth_side / 2 * cos(earth_radian * 0.024) * sin(a));
+	earth_center_y = cy + 30
+			- (earth_side / 2  * cos(earth_radian * 0.024) * cos(a)
+					- earth_side * 1.5 * sin(earth_radian * 0.024) * sin(a));
+
+	ad->moon_pattern = cairo_pattern_create_radial(earth_center_x,
+			earth_center_y, 0, earth_center_x, earth_center_y, r / 10);
+	cairo_pattern_add_color_stop_rgba(ad->moon_pattern, 0.05, moon[0] - 0.1,
+			moon[1] - 0.1, moon[2] - 0.1,1);
+	cairo_pattern_add_color_stop_rgba(ad->moon_pattern, 0.4, moon[0], moon[1],
+			moon[2],1);
+	cairo_pattern_add_color_stop_rgba(ad->moon_pattern, 0.9, moon[0], moon[1],
+			moon[2],0);
+
+	cairo_arc(ad->cairo, earth_center_x, earth_center_y, r / (10 * 1.2),
+			ANGLE(0), ANGLE(360));
+	cairo_set_source(ad->cairo, ad->moon_pattern);
 	cairo_fill(ad->cairo);
 
-	//add new time text
+	cairo_pattern_destroy(ad->moon_pattern);
 
-	double ca = (double)250/256;
-	double cb,cc;
-	cb =(double)71/256;
-	cc = (double)117/256;
-	cairo_set_source_rgba(ad->cairo, 0.6,0.6,0.6, 1);
-	cairo_select_font_face(ad->cairo, "Courier", CAIRO_FONT_SLANT_NORMAL,
+	/****draw 卫星***/
+	cairo_set_source_rgba(ad->cairo, moon[0], moon[1], moon[2], 1);
+	double radian = -(second * 1000 + msecond) * (M_PI / 180);
+	double inner_x, inner_y, side;
+	side = r;
+	inner_x = earth_center_x - (16 * sin(radian * 0.024));
+	inner_y = earth_center_y - (16 * cos(radian * 0.024));
+
+	cairo_arc(ad->cairo, inner_x, inner_y, 2, ANGLE(0), ANGLE(360));
+	cairo_fill(ad->cairo);
+	char watch_text[TEXT_BUF_SIZE];
+	cairo_set_source_rgba(ad->cairo, 0,0,0, 1);
+	cairo_select_font_face(ad->cairo, "Comforta", CAIRO_FONT_SLANT_NORMAL,
 			CAIRO_FONT_WEIGHT_NORMAL);
-	cairo_set_font_size(ad->cairo, 36);
+	dlog_print(DLOG_ERROR, LOG_TAG, "current time. err %02d:%02d", hour24,
+			minute);
+	cairo_set_font_size(ad->cairo, 25);
 
-	snprintf(ad->watch_text, TEXT_BUF_SIZE, "%02d:%02d", hour24, minute);
-//	cairo_text_extents(ad->cairo, ad->watch_text, ad->extents);
-//	cairo_move_to(ad->cairo, size - ad->extents->width - 20,
-//			size / 2 + ad->extents->height / 2);
-//	cairo_show_text(ad->cairo, ad->watch_text);
-	cairo_text_extents_t te;
-	char *alphabet =ad->watch_text;
-	char letter[2];
-	for (int i=0; i < strlen(alphabet); i++)
-	{
-	cairo_set_source_rgba(ad->cairo, 0.6-i*0.1,0.6-i*0.1,0.6-i*0.1, 1);
-	*letter = '\0';
-	strncat (letter, alphabet + i, 1);
-	cairo_text_extents (ad->cairo, letter, &te);
-	int tx = 270+i*20 + 0.5 - te.x_bearing - te.width / 2;
-	if(i== 2) tx-=4;
-	if(i>=3) tx-=8;
-	int ty = 180+0.5 - te.y_bearing - te.height / 2;
-	cairo_move_to (ad->cairo, tx,ty);
-	cairo_show_text (ad->cairo, letter);
-	}
-//	char *week = "wed";
-//	var current_dt = time.getCurrentDateTime();
-//	//console.log ("current date / time is " + current_dt.toLocaleString());
-//	dlog_print(DLOG_ERROR, LOG_TAG, "get color %s",ocurrent_dt.toLocaleString());
-//	char out[OUTLEN];
-//	int rc = g2u(week,strlen(week),out,OUTLEN);
-//	    printf("gb2312-->unicode out=%sn",out);
-//	dlog_print(DLOG_ERROR, LOG_TAG, "get color %s %d",out,strlen(out));
-//	cairo_select_font_face(ad->cairo, "Adobe Heiti Std", CAIRO_FONT_SLANT_NORMAL,
-//				CAIRO_FONT_WEIGHT_NORMAL);
-//
-//		cairo_text_extents(ad->cairo, week, ad->extents);
-//		cairo_move_to(ad->cairo, size - ad->extents->width - 20,
-//				size / 2 + ad->extents->height / 2);
-//		cairo_show_text(ad->cairo, week);
+	snprintf(watch_text, TEXT_BUF_SIZE, "%02d:%02d", hour24, minute);
+	cairo_text_extents_t extents;
+	cairo_text_extents(ad->cairo, watch_text, &extents);
+	//cairo_move_to(cr, x - extents.width/2, y);
+	cairo_move_to(ad->cairo, size / 2 - extents.width / 2, size / 1.1);
+	cairo_show_text(ad->cairo, watch_text);
+
+	cairo_surface_flush(ad->surface);
 
 	/* Display this cairo watch on screen */
-	cairo_surface_flush(ad->surface);
 	evas_object_image_data_update_add(ad->img, 0, 0, ad->width, ad->height);
 	evas_object_show(ad->img);
 }
 
+static long long _get_current_ms_time(void) {
+	struct timespec tp;
+	long long res = 0;
+
+	if (clock_gettime(CLOCK_MONOTONIC, &tp) == -1) {
+		/*
+		 * Zero mean invalid time
+		 */
+		return 0;
+	} else {
+		/*
+		 * Calculate milliseconds time
+		 */
+		res = tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
+		return res;
+	}
+}
 static Eina_Bool _timer1_cb(void *ad) {
 	appdata_s *a = (appdata_s*) ad;
 	long long cms = _get_current_ms_time();
@@ -325,83 +230,6 @@ static Eina_Bool _timer1_cb(void *ad) {
 
 	update_solar_system(a, hour24, minute, second, misec);
 	return ECORE_CALLBACK_RENEW;
-}
-static Eina_Bool event_move(void *data, int type, void *ev) {
-	appdata_s *ad = data;
-	if (!ad->isDown)
-		return ECORE_CALLBACK_DONE;
-
-	Ecore_Event_Mouse_Move *event = ev;
-	int cx, cy, size;
-	size = ad->width / 2;
-	int cur_x = event->root.x;
-	int cur_y = event->root.y;
-	int pre_x = ad->prex;
-	int pre_y = ad->prey;
-
-	ad->dx = cur_x - pre_x;
-	ad->dy = cur_y - pre_y;
-	int dx = ad->dx;
-	int dy = ad->dy;
-
-	dlog_print(DLOG_ERROR, LOG_TAG,
-			"current position event_move ta index %d %d", ad->prex, ad->prey);
-	ad->prex = cur_x;
-	ad->prey = cur_y;
-
-	//dlog_print(DLOG_ERROR, LOG_TAG, "current position %d %d",ev->cur.output.x,ev->cur.output.y);
-
-	cx = ad->cur_position_x + dx / 1.05;
-	cy = ad->cur_position_y + dy / 1.05;
-
-	int ta = (cx - size) * (cx - size) + (cy - size) * (cy - size);
-	//dlog_print(DLOG_ERROR, LOG_TAG, "current position ta %d", ta);
-	//dlog_print(DLOG_ERROR, LOG_TAG, "current position ta %d", size * size);
-
-	if (ta > 164 * 164) {
-		return ECORE_CALLBACK_PASS_ON;
-	}
-	ad->cur_position_x = cx;
-	ad->cur_position_y = cy;
-//	_timer1_cb(ad);
-	return ECORE_CALLBACK_PASS_ON;
-}
-
-static Eina_Bool event_down(void *data, int type, void *ev) {
-	appdata_s * ad = data;
-	Ecore_Event_Mouse_Button *event = ev;
-	ad->isDown = 1;
-	ad->prex = event->root.x;
-	ad->prey = event->root.y;
-	ad->downX = event->root.x;
-	ad->downY = event->root.y;
-	ad->downStamp = ecore_time_unix_get();
-	dlog_print(DLOG_ERROR, LOG_TAG, "current position event_down ta inde %d %d",
-			ad->prex, ad->prey);
-	return ECORE_CALLBACK_DONE;
-}
-
-static Eina_Bool event_up(void *data, int type, void *ev) {
-	appdata_s * ad = data;
-	Ecore_Event_Mouse_Button *event = ev;
-	ad->isDown = 0;
-	//计算惯性动作
-	double duration = ecore_time_unix_get() - ad->downStamp;
-	dlog_print(DLOG_ERROR, LOG_TAG, "current position event_up moved time %lf",
-			duration);
-	int dx = event->root.x - ad->downX;
-	int dy = event->root.y - ad->downY;
-
-	ad->avg_speedX = (double) dx / duration;
-	ad->avg_speedY = (double) dy / duration;
-//	dlog_print(DLOG_ERROR, LOG_TAG, "current position event_up d and speed %d %d %lf %lf",dx,dy,avg_speedX,avg_speedY);
-//	ecore_animator_timeline_add(2, scroll_animation_callback, ad);
-
-	ad->downX = -1;
-	ad->downY = -1;
-	dlog_print(DLOG_ERROR, LOG_TAG, "current position event_up ta %d %d",
-			ad->prex, ad->prey);
-	return ECORE_CALLBACK_DONE;
 }
 
 static void create_base_gui(appdata_s *ad) {
@@ -427,12 +255,6 @@ static void create_base_gui(appdata_s *ad) {
 			EVAS_IMAGE_CONTENT_HINT_DYNAMIC);
 	evas_object_image_colorspace_set(ad->img, EVAS_COLORSPACE_ARGB8888);
 	evas_object_show(ad->img);
-//	ad->handler = ecore_event_handler_add(ECORE_EVENT_MOUSE_MOVE, event_move,
-//			ad);
-//	ad->handler = ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_UP, event_up,
-//			ad);
-//	ad->handler = ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_DOWN,
-//			event_down, ad);
 
 	/* Create Cairo context */
 	ad->pixels = (unsigned char*) evas_object_image_data_get(ad->img, 1);
@@ -449,6 +271,7 @@ static bool app_create(int width, int height, void *data) {
 	ad->width = width;
 	ad->height = height;
 	create_base_gui(ad);
+
 	return true;
 }
 
@@ -464,14 +287,20 @@ static void app_pause(void *data) {
 	/* Take necessary actions when application becomes invisible. */
 	appdata_s *ad = data;
 	if (ad->timer)
-		ecore_animator_freeze(ad->timer);
+		ecore_timer_del(ad->timer);
 }
 
 static void app_resume(void *data) {
 	/* Take necessary actions when application becomes visible. */
 	appdata_s *ad = data;
-	watch_time_h watch_time = NULL;
+	if (ad->timer) {
+		ecore_timer_del(ad->timer);
+	}
+	ad->start_interval = _get_current_ms_time();
+	ad->timer = ecore_timer_add(interval, _timer1_cb, ad);
 	int hour24, minute, second;
+
+	watch_time_h watch_time = NULL;
 	int ret = watch_time_get_current_time(&watch_time);
 	if (ret != APP_ERROR_NONE)
 		dlog_print(DLOG_ERROR, LOG_TAG, "failed to get current time. err = %d",
@@ -485,12 +314,6 @@ static void app_resume(void *data) {
 	ad->hour24 = hour24;
 	ad->minute = minute;
 	ad->second = second;
-	ad->start_interval = _get_current_ms_time();
-	if (ad->timer) {
-		ecore_animator_thaw(ad->timer);
-	} else {
-		ad->timer = ecore_timer_add(interval, _timer1_cb, ad);
-	}
 }
 
 /*
@@ -500,7 +323,16 @@ static void app_terminate(void *data) {
 	/* Release all resources. */
 	appdata_s *ad = data;
 	/* Destroy cairo surface and context */
-	free_data(ad);
+	cairo_surface_destroy(ad->surface);
+	cairo_destroy(ad->cairo);
+
+	if (ad->sun_pattern) {
+		cairo_pattern_destroy(ad->sun_pattern);
+	}
+	if (ad->earth_pattern)
+		cairo_pattern_destroy(ad->earth_pattern);
+	if (ad->moon_pattern)
+		cairo_pattern_destroy(ad->moon_pattern);
 }
 
 /*
@@ -512,9 +344,9 @@ static void app_time_tick(watch_time_h watch_time, void *data) {
 	appdata_s *ad = data;
 //	if(ad->ambient_mode == 0)
 //	update_watch(ad, watch_time, 0);
-//	if (!ad->timer) {
-//		app_resume(data);
-//	}
+	if (!ad->timer) {
+		app_resume(data);
+	}
 }
 
 /*
@@ -524,7 +356,7 @@ static void app_ambient_tick(watch_time_h watch_time, void *data) {
 	/* Called at each minute while the device is in ambient mode. Update watch UI. */
 	appdata_s *ad = data;
 //	update_watch(ad, watch_time, 1);
-	if (ad->ambient_mode) {
+	if (ad->ambient_mode && !ad->timer) {
 		int hour24, minute, second;
 
 		/* Get current time */
@@ -548,14 +380,13 @@ static void app_ambient_changed(bool ambient_mode, void *data) {
 	ad->ambient_mode = ambient_mode;
 	if (ambient_mode) {
 		if (ad->timer) {
-			ecore_timer_freeze(ad->timer);
+			ecore_timer_del(ad->timer);
+			ad->timer = NULL;
 		}
 	} else {
 		if (!ambient_mode) {
 			if (!ad->timer) {
 				app_resume(data);
-			} else {
-				ecore_timer_thaw(ad->timer);
 			}
 		}
 	}
@@ -612,4 +443,3 @@ int main(int argc, char *argv[]) {
 
 	return ret;
 }
-

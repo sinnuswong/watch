@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="4.0" package="org.eros.watch" version="1.0.0">
+    <profile name="wearable"/>
+    <watch-application ambient-support="true" appid="org.eros.watch" exec="iwatch">
+        <label>iwatch</label>
+        <icon>iwatch.png</icon>
+    </watch-application>
+    <!-- <ui-application appid="org.example.basicui3" exec="basicui3" multiple="false" nodisplay="false" taskmanage="true" type="capp">
+        <label>iwatch</label>
+        <icon>iwatch.png</icon>
+    </ui-application> -->
+    <privileges>
+        <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
+        <privilege>http://tizen.org/privilege/alarm.set</privilege>
+        <privilege>http://tizen.org/privilege/externalstorage.appdata</privilege>
+    </privileges>
+</manifest>

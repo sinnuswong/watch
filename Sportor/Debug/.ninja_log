@@ -8,3 +8,8 @@
 1012	1388	0	sportor	6fd09ab81606c3ea
 4	1010	0	src/sportor.o	b64620eae2d209c7
 1011	1552	0	sportor	6aca6a740ecfaad3
+0	6	0	clean_cov	b3de405e02eb7ca8
+6	11	0	clean_sa	46ab9549445ac981
+11	22	0	clean	d59b6dac04fa9b5d
+5	437	0	src/sportor.o	b64620eae2d209c7
+438	658	0	sportor	6aca6a740ecfaad3

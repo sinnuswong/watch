@@ -1,0 +1,11 @@
+APPNAME = basicui4
+
+type = app
+profile = wearable-5.5
+
+USER_SRCS = src/basicui4.c
+USER_DEFS =
+USER_INC_DIRS = inc
+USER_OBJS =
+USER_LIBS =
+USER_EDCS =

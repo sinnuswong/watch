@@ -25,7 +25,7 @@ typedef struct appdata {
 double* yin;
 double* yang;
 
-char * yin_color = "#383838";//"#0d4261";
+char * yin_color = "#0d4261";
 char * yang_color = "#FFFFFF";
 #define TEXT_BUF_SIZE 256
 

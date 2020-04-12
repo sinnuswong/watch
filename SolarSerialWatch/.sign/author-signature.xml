@@ -4,15 +4,19 @@
 <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></SignatureMethod>
 <Reference URI="bin%2Fsolarserialwatch">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>bfdTSiFhyWuIHVU5dVE/PkTPov9n2sr7cI6xLshKLiE=</DigestValue>
+<DigestValue>D0gdzdx4+EOQdmN/c+qHMD2penf7g1STvqzhy+YBFJ0=</DigestValue>
 </Reference>
-<Reference URI="shared%2Fres%2Fsolarserialwatch.png">
+<Reference URI="shared%2Fres%2Fso.png">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>1d0oEZHqPn+QzNzGIHwj9ODby6x9ggFs9uOsav6jPNs=</DigestValue>
+<DigestValue>LU+VihYYODRNUKgDCcNlYh01gw6Tky2daan0QE9ZH6s=</DigestValue>
+</Reference>
+<Reference URI="shared%2Fres%2Fsolar.png">
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
+<DigestValue>EzlRwBpROJbYsPHQBZpR7xWgu6A0KEqrpdw0b6nh8Ss=</DigestValue>
 </Reference>
 <Reference URI="tizen-manifest.xml">
 <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></DigestMethod>
-<DigestValue>DMtbgou4eiypKNdjT6tdcKyF3FggDoKII1ZHTTy/5t4=</DigestValue>
+<DigestValue>/N8cgUp7b1P+p6BhOo0LaWGi2vJCZGXjNn4rNfiAF5g=</DigestValue>
 </Reference>
 <Reference URI="#prop">
 <Transforms>
@@ -23,11 +27,11 @@
 </Reference>
 </SignedInfo>
 <SignatureValue>
-Mjl7aphQXtLxhgBmHEnzGzs8vvCdGxXSKaQow32KfJq9HOZfClQc2BePibzC61CvhCJuo2aN1jEO
-I+62W59hgkYPz3t4JzH36oo9p4r9gOHH1zqxJxwogzq8I5vFMrYKUMUr9DWTYtsGtPqVYHw3hnct
-KBFrVor3xG+Ufz8LWbZWTQSc0v8aj0fpUdNTFDxHTklQhYv8S4V5hcvTrkPvxmJl8yGAflLfff5S
-XncJhOTP+u2R3M9BD4kIZfc4MhQx+aFA8lQhEu7ViKeFgblVb0GbojHeB1EJQM/gwhS/Ajn+V+DN
-4fQyjgY7Bxgj3mwn/kpfAesXMi8lwRsrCx0OyA==
+NDT59HjfA243hqqWMrD7t5bOzpqKYeeFx4uvj+pL1kZiZoDDJTXsHxpDXWqalHeC8ynoYH3mUCu4
++unsWtHPeJyh9u+iTlpQvKYbeqTtCPeuVcqNgr/aeOq2e9F7S04t7ewa1W/EM0K/hclaVRTSwm/u
+Kx7sYwCFsa7/IltEBS+OFXojbms6UtrW7n+HOYOuzJpLDSVVpMKqf+BiW1U0YCFJQVzPIRzS/8IP
+R1yYaCYTc9vRERx8JohzTszsJuYqLQNLL9PTcNeYDm/uqN2c6X8hicXq41W0uI3NXBLM0zYvsab3
+2aDfP18EgCUCz6mKXCg/pc83FP7rtYPk8lYDOw==
 </SignatureValue>
 <KeyInfo>
 <X509Data>

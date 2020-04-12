@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="2.3.2" package="org.eros.loupewatch" version="1.0.0">
+    <profile name="wearable"/>
+    <watch-application ambient-support="true" appid="org.eros.loupewatch" exec="loupewatch">
+        <label>loupewatch</label>
+        <icon>loupe_icon.png</icon>
+    </watch-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/alarm.set</privilege>
+    </privileges>
+</manifest>
